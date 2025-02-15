@@ -6,7 +6,7 @@ namespace FSM {
 
     public abstract class MonoBaseState : MonoBehaviour, IState {
 
-        public event Action     OnNeedsReplan;
+        public event System.Action     OnNeedsReplan;
         public event StateEvent OnEnter;
         public event StateEvent OnExit;
         

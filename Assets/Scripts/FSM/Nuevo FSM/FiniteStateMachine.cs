@@ -11,8 +11,8 @@ namespace FSM {
 
         public delegate void StateEvent(IState from, IState to);
 
-        public event Action OnActive;
-        public event Action OnUnActive;
+        public event System.Action OnActive;
+        public event System.Action OnUnActive;
 
         public IState CurrentState { get; private set; }
         private List<IState> _allStates;

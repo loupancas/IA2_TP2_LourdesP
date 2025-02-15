@@ -7,7 +7,7 @@ using UnityEngine;
 public class AStar<T>
 {
     public event Action<IEnumerable<T>> OnPathCompleted;
-    public event Action OnCantCalculate;
+    public event System.Action OnCantCalculate;
     public float maxFrameTime = 0.016f; // Tiempo máximo por frame (60 FPS)
 
     public IEnumerator Run(T start, Func<T, bool> isGoal, Func<T, IEnumerable<WeightedNode<T>>> explode, Func<T, float> getHeuristic)

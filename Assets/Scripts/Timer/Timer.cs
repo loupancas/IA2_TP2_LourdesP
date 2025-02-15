@@ -11,8 +11,8 @@ public abstract class Timer
 
     public float Progress => Time / initialTime;
 
-    public Action OnTimerStart = delegate { };
-    public Action OnTimerStop = delegate { };
+    public System.Action OnTimerStart = delegate { };
+    public System.Action OnTimerStop = delegate { };
 
     protected Timer(float value)
     {

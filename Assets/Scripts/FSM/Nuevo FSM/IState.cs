@@ -5,7 +5,7 @@ namespace FSM {
 
     public interface IState {
 
-        event Action     OnNeedsReplan;
+        event System.Action     OnNeedsReplan;
 
         event StateEvent OnEnter;
         event StateEvent OnExit;
