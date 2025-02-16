@@ -1,9 +1,10 @@
+using FSM;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class EnemyMovement : MonoBehaviour
+public class EnemyMovement : MonoBaseState
 {
     private AStar<Node> _aStar;
     private List<Node> _path;
@@ -118,5 +119,15 @@ public class EnemyMovement : MonoBehaviour
         {
             _currentPathIndex++;
         }
+    }
+
+    public override void UpdateLoop()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override IState ProcessInput()
+    {
+        throw new System.NotImplementedException();
     }
 }
