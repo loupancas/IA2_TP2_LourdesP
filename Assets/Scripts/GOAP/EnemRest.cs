@@ -5,13 +5,20 @@ using UnityEngine;
 
 public class EnemRest : MonoBaseState
 {
+    private GAgent _gAgent;
+    bool _stateFinished;
+    int _fatigue;
     public override IState ProcessInput()
     {
-        throw new System.NotImplementedException();
+        if (_stateFinished && Transitions.ContainsKey(StateTransitions.ToIdle))
+            return Transitions[StateTransitions.ToIdle];
+
+        return this;
     }
 
     public override void UpdateLoop()
     {
-        throw new System.NotImplementedException();
+        if(_fatigue == 0f) _stateFinished = true;
+        
     }
 }

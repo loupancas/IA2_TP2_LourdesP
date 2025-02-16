@@ -7,13 +7,20 @@ using UnityEngine;
 
 public class EnemyWeaponAttack : MonoBaseState
 {
+    private GAgent _gAgent;
+    bool _stateFinished;
+    string _weapon;
     public override IState ProcessInput()
     {
-        throw new System.NotImplementedException();
+        if (_stateFinished && Transitions.ContainsKey(StateTransitions.ToIdle))
+            return Transitions[StateTransitions.ToIdle];
+
+        return this;
     }
+
 
     public override void UpdateLoop()
     {
-        throw new System.NotImplementedException();
+        if (_weapon== "HasWeapon") _stateFinished = true;
     }
 }

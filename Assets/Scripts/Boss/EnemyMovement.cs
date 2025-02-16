@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static UnityEngine.UI.GridLayoutGroup;
 
 public class EnemyMovement : MonoBaseState
 {
@@ -16,7 +17,8 @@ public class EnemyMovement : MonoBaseState
     public float maxFrameTime = 0.016f; // Tiempo máximo por frame (60 FPS), ajustable desde el Inspector
     private bool isChasing = false;
     private Coroutine _pathfindingCoroutine;
-
+    private GAgent _gAgent;
+    bool _stateFinished;
     void Start()
     {
         _aStar = new AStar<Node>();
@@ -50,13 +52,7 @@ public class EnemyMovement : MonoBaseState
         }
     }
 
-    void Update()
-    {
-        if (isChasing && _path != null && _currentPathIndex < _path.Count)
-        {
-            MoveAlongPath();
-        }
-    }
+ 
 
     private Node FindClosestNode(Vector3 position)
     {
@@ -123,11 +119,30 @@ public class EnemyMovement : MonoBaseState
 
     public override void UpdateLoop()
     {
-        throw new System.NotImplementedException();
+        if (Vector3.Distance(transform.position, player.position) < chaseDistance)
+            _stateFinished = true;
     }
+
+    public override void Enter(IState from, Dictionary<string, object> transitionParameters = null)
+    {
+        base.Enter(from, transitionParameters);
+       
+
+    }
+
+    public override Dictionary<string, object> Exit(IState to)
+    {
+      
+        _stateFinished = false;
+        return base.Exit(to);
+    }
+
 
     public override IState ProcessInput()
     {
-        throw new System.NotImplementedException();
+        if (_stateFinished && Transitions.ContainsKey(StateTransitions.ToIdle))
+            return Transitions[StateTransitions.ToIdle];
+
+        return this;
     }
 }

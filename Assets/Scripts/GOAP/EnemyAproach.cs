@@ -6,13 +6,19 @@ using UnityEngine;
 
 public class EnemyAproach : MonoBaseState
 {
+    private GAgent _gAgent;
+    bool _stateFinished;
+    float _distanceToPlayer;
     public override IState ProcessInput()
     {
-        throw new System.NotImplementedException();
+        if (_stateFinished && Transitions.ContainsKey(StateTransitions.ToIdle))
+            return Transitions[StateTransitions.ToIdle];
+
+        return this;
     }
 
     public override void UpdateLoop()
     {
-        throw new System.NotImplementedException();
+        if (_distanceToPlayer <= 1.5f) _stateFinished = true;
     }
 }

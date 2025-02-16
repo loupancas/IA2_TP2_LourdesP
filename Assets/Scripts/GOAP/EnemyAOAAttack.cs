@@ -5,13 +5,19 @@ using UnityEngine;
 
 public class EnemyAOAAttack : MonoBaseState
 {
+    private GAgent _gAgent;
+    bool _stateFinished;
+    float _distanceToPlayer;
     public override IState ProcessInput()
     {
-        throw new System.NotImplementedException();
+        if (_stateFinished && Transitions.ContainsKey(StateTransitions.ToIdle))
+            return Transitions[StateTransitions.ToIdle];
+
+        return this;
     }
 
     public override void UpdateLoop()
     {
-        throw new System.NotImplementedException();
+        if (_distanceToPlayer <= 3f) _stateFinished = true;
     }
 }

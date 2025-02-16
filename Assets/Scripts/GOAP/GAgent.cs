@@ -19,6 +19,10 @@ public class GAgent : MonoBehaviour
     [SerializeField] private EnemRest _enemyRest;
     [SerializeField] private EnemyAproach _enemyAproach;
 
+
+    public int _fatigue = 0;
+    public float _distanceToPlayer = 5f;
+
     private void Awake()
     {
         _fsm = new FiniteStateMachine(_enemyIdle, StartCoroutine);
