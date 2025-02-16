@@ -67,8 +67,8 @@ public class GPlanner
         OnCantPlan?.Invoke();
     }
 
-    private static float GetHeuristic(GState from, GState goal) => goal.values.Count(kv => !kv.In(from.values));
-    private static bool Satisfies(GState state, GState to) => to.values.All(kv => kv.In(state.values));
+    private static float GetHeuristic(GState from, GState goal) => goal.state.Count(kv => !kv.In(from.state));
+    private static bool Satisfies(GState state, GState to) => to.state.All(kv => kv.In(state.state));
 
     private static IEnumerable<WeightedNode<GState>> Explode(GState node, IEnumerable<GAction> actions,
                                                                 ref int watchdog)
@@ -76,15 +76,15 @@ public class GPlanner
         if (watchdog == 0) return Enumerable.Empty<WeightedNode<GState>>();
         watchdog--;
 
-        return actions.Where(action => action.preconditions.All(kv => kv.In(node.values)))
+        return actions.Where(action => action.preconditions.All(kv => kv.In(node.state)))
                       .Aggregate(new List<WeightedNode<GState>>(), (possibleList, action) =>
                       {
                           var newState = new GState(node);
-                          newState.values.UpdateWith(action.effects);
+                          newState.state.UpdateWith(action.effects);
                           newState.generatingAction = action;
                           newState.step = node.step + 1;
 
-                          possibleList.Add(new WeightedNode<GState>(newState, action.cost));
+                          possibleList.Add(new WeightedNode<GState>(newState, action.Cost));
                           return possibleList;
                       });
     }

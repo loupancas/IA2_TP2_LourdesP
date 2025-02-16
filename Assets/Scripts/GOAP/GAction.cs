@@ -8,29 +8,22 @@ public class GAction
 {
     public string Name { get; private set; }
     public float Cost { get; private set; }
-    public Func<GState, bool> preconditions { get; private set; }
-    public Action<GState> effects { get; private set; }
+   
 
-    //public Dictionary<string, T> preconditions { get; private set; }
-    //public Dictionary<string, T> effects { get; private set; }
+    public Dictionary<string, object> preconditions { get; private set; }
+    public Dictionary<string, object> effects { get; private set; }
     public IState linkedState { get; private set; }
     //fsm o ienumerable
 
-    public GAction(string name, float cost, Func<GState, bool> precondition, Action<GState> effect)
+    public GAction(string name, float cost)
     {
         Name = name;
         Cost = cost;
-        preconditions = precondition;
-        effects = effect;
+        preconditions = new Dictionary<string, object>();
+        effects = new Dictionary<string, object>();
     }
 
-    //public GAction(string name)
-    //{
-    //    this.name = name;
-    //    cost = 1f;
-    //    preconditions = new Dictionary<string, T>();
-    //    effects = new Dictionary<string, T>();
-    //}
+
 
     public GAction Costs(float cost)
     {
@@ -45,17 +38,17 @@ public class GAction
         return this;
     }
 
-    //public GAction Pre(string s, bool value)
-    //{
-    //    preconditions[s] = value;
-    //    return this;
-    //}
+    public GAction Pre<T>(string key, T value)
+    {
+        preconditions[key] = value;
+        return this;
+    }
 
-    //public GAction Effect(string s, bool value)
-    //{
-    //    effects[s] = value;
-    //    return this;
-    //}
+    public GAction Effect<T>(string key, T value)
+    {
+        effects[key] = value;
+        return this;
+    }
 
     public GAction LinkedState(IState state)
     {
@@ -63,5 +56,11 @@ public class GAction
         return this;
     }
 
-  
+    public void ApplyEffect(GState state)
+    {
+        foreach (var effect in effects)
+        {
+            state.Set(effect.Key, effect.Value);
+        }
+    }
 }
