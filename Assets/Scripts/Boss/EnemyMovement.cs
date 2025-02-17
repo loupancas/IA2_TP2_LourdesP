@@ -134,7 +134,14 @@ public class EnemyMovement : MonoBaseState
     public override void UpdateLoop()
     {
         if (Vector3.Distance(transform.position, player.position) < chaseDistance)
+        {
             _stateFinished = true;
+        }
+
+        if (isChasing)
+        {
+            MoveAlongPath();
+        }
     }
 
     public override void Enter(IState from, Dictionary<string, object> transitionParameters = null)

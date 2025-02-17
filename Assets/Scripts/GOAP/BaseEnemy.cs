@@ -31,12 +31,7 @@ public class BaseEnemy : MonoBehaviour
         _actualLife = initialLife;
     }
 
-    //private void Start()
-    //{
-    //    _actualFatigue = initialFatigue;
-    //    _actualLife = initialLife;
-    //}
-
+  
 
     public void TakeDamage(int damage)
     {
