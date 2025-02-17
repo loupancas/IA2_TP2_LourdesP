@@ -76,7 +76,7 @@ public class GAgent : MonoBehaviour
         // Definir acciones
         //planngoap();
 
-        PlanAndExecute();
+        
 
     }
 
@@ -89,6 +89,8 @@ public class GAgent : MonoBehaviour
         _state.Set("Weapon", GetWeapon());
         _state.Set("DistanciaPlayer", GetDistanceToPlayer());
         _state.Set("Fatiga", GetFatigue());
+
+        PlanAndExecute();
     }
 
     private void planngoap()
