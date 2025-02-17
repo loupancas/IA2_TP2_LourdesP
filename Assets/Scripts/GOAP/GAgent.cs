@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using System;
 
 public class GAgent : MonoBehaviour
 {
@@ -22,11 +23,13 @@ public class GAgent : MonoBehaviour
 
     public int _fatigue = 0;
     public float _distanceToPlayer = 5f;
+    public float _viewRadius = 5f;
+    public float _closeView = 1.5f;
 
     private void Awake()
     {
         _fsm = new FiniteStateMachine(_enemyIdle, StartCoroutine);
-
+        _state = new GState();
         //Idle
         _fsm.AddTransition(StateTransitions.ToPursuit, _enemyIdle, _enemyMovement);
         _fsm.AddTransition(StateTransitions.ToAOA, _enemyIdle, _enemyAttackAOA);
@@ -71,22 +74,21 @@ public class GAgent : MonoBehaviour
         // **Definir acciones**
 
         // Definir acciones
-        planngoap();
+        //planngoap();
 
-        // Definir objetivo
-        GState goal = new GState();
-        goal.Set("HacerDaño", true);
+        PlanAndExecute();
 
-        // Generar plan
-        planner.Run(_state, goal, actions, StartCoroutine);
-
-       
     }
 
 
     private void Update()
     {
         _fsm.Update();
+
+        _state.Set("IsAlive", true);
+        _state.Set("Weapon", GetWeapon());
+        _state.Set("DistanciaPlayer", GetDistanceToPlayer());
+        _state.Set("Fatiga", GetFatigue());
     }
 
     private void planngoap()
@@ -128,11 +130,113 @@ public class GAgent : MonoBehaviour
             .LinkedState(_enemyAproach)// Reduce la distancia para atacar
          };
     }
-   
 
-    IEnumerator PerformAction(GAction action)
+    private void PlanAndExecute()
     {
-        yield return new WaitForSeconds(action.Cost);
-        action.ApplyEffect(_state);
+        var actions = new List<GAction>{
+                                    new GAction("Buscar jugador", 3)
+                                         .Effect("DistanciaPlayer", 2.5f)
+                                        .LinkedState(_enemyMovement),
+
+                                    new GAction("Ataque de área", 10)
+                                        .Pre("DistanciaPlayer", 3f)
+                                        .Pre("Fatiga", 6)
+                                        .Effect("Fatiga", 6)
+                                        .LinkedState(_enemyAttackAOA),
+
+                                    new GAction("Ataque con arma", 5)
+                                        .Pre("DistanciaPlayer", 1.5f)
+                                        .Pre("Weapon", "HasWeapon")
+                                        .Pre("Fatiga", 4)
+                                        .Effect("Fatiga", 2)
+                                        .LinkedState(_enemyAttackWeapon),
+
+                                    new GAction("Obtener arma", 1)
+                                        .Pre("IsAlive", true)
+                                        .Pre("Weapon", "none")
+                                        .Pre("DistanciaPlayer", 3f)
+                                        .Effect("Weapon", "HasWeapon")
+                                        .LinkedState(_enemyMovement),
+
+                                    new GAction("Descansar", 15)
+                                        .Pre("Fatiga", 1) // Solo descansará si tiene fatiga mayor a 0
+                                        .Effect("Fatiga", 0)
+                                         .LinkedState(_enemyRest),
+
+                                    new GAction("Acercarse", 3)
+                                        .Pre("DistanciaPlayer", 1.5f)
+                                        .Effect("DistanciaPlayer", 1.4f)
+                                        .LinkedState(_enemyAproach)// Reduce la distancia para atacar
+                                          };
+
+           var from = new GState();
+           from.state["isPlayerInSight"] = IsPlayerInSight();
+           from.state["Weapon"] = GetWeapon();
+           from.state["DistanciaPlayer"] = GetDistanceToPlayer();
+           from.state["Fatiga"] = GetFatigue();
+           from.state["isPlayerAlive"] = true;
+
+           var to = new GState();
+           to.state["isPlayerAlive"] = false;
+
+          var planner = new GPlanner();
+          planner.OnPlanCompleted += OnPlanCompleted;
+          planner.OnCantPlan += OnCantPlan;
+
+          planner.Run(from, to, actions, StartCoroutine);
     }
+
+    public bool IsPlayerInSight()
+    {
+        //tira raycast o algo así
+        return false;
+    }
+
+    public string GetWeapon()
+    {
+        //tira raycast o algo así
+        return "none";
+    }
+
+    public float GetDistanceToPlayer()
+    {
+        //tira raycast o algo así
+        return 5f;
+    }
+
+    public int GetFatigue()
+    {
+        //tira raycast o algo así
+        return 0;
+    }
+
+
+    private void OnPlanCompleted(IEnumerable<GAction> plan)
+    {
+        _fsm = GPlanner.ConfigureFSM(plan, StartCoroutine);
+        _fsm.Active = true;
+    }
+
+    private void OnCantPlan()
+    {
+        //TODO: debuggeamos para ver por qué no pudo planear y encontrar como hacer para que no pase nunca mas
+
+
+
+    }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.white;
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, _viewRadius);
+        Gizmos.DrawWireSphere(transform.position, _closeView);
+
+       
+    }
+
+
+
+
 }
+
