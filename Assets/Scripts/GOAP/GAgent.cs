@@ -5,7 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using System;
 
-public class GAgent : MonoBehaviour
+public class GAgent :  BaseEnemy
 {
     public GState _state;
     private List<GAction> actions = new List<GAction>();
@@ -21,10 +21,10 @@ public class GAgent : MonoBehaviour
     [SerializeField] private EnemyAproach _enemyAproach;
 
 
-    public int _fatigue = 0;
     public float _distanceToPlayer = 5f;
     public float _viewRadius = 5f;
     public float _closeView = 1.5f;
+
 
     private void Awake()
     {
@@ -208,8 +208,8 @@ public class GAgent : MonoBehaviour
 
     public int GetFatigue()
     {
-        //tira raycast o algo así
-        return 0;
+        
+        return ActualFatigue;
     }
 
 
@@ -247,6 +247,14 @@ public class GAgent : MonoBehaviour
 
 
     }
+
+    //public void OnHit(int Dmg)
+    //{
+      
+    //    TakeDamage(Dmg);
+        
+
+    //}
 
     void OnDrawGizmos()
     {

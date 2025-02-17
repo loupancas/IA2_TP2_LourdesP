@@ -15,6 +15,13 @@ public class EnemyAOAAttack : MonoBaseState
 
         return this;
     }
+
+
+    public void AOAAttack()
+    {
+        BaseEnemy.Instance.Fatigarse(6);
+    }
+
     public override void Enter(IState from, Dictionary<string, object> transitionParameters = null)
     {
         base.Enter(from, transitionParameters);

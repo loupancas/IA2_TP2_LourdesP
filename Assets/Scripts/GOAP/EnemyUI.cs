@@ -10,6 +10,7 @@ public class EnemyUI : MonoBehaviour
     private BaseEnemy _lifeBar, _fatigueBar;
     public Image lifeUI;
     public Image fatigueUI;
+    
     private int actualLife;
     private int actualFatigue;
 
@@ -40,13 +41,13 @@ public class EnemyUI : MonoBehaviour
 
     private void ChangeLifeUI()
     {
-        actualLife = _lifeBar.ActualLife;
+        lifeUI.fillAmount = (float)actualLife / _lifeBar.initialLife;
 
     }
 
     private void ChangeFatigueUI()
     {
-        actualFatigue = _fatigueBar.ActualFatigue;
+        fatigueUI.fillAmount = (float)actualFatigue / _fatigueBar.initialFatigue;
     }
 
 

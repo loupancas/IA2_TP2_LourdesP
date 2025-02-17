@@ -92,6 +92,13 @@ public class Misil : ProyectilesBase, IFreezed
             MisilFactory.Instance.ReturnProjectile(this);
         }
 
+        if (collision.collider.GetComponent<BaseEnemy>() != null)
+        {
+            print("Misil físico impacta a enemigo");
+            collision.collider.GetComponent<BaseEnemy>().TakeDamage(_dmg);
+            MisilFactory.Instance.ReturnProjectile(this);
+        }
+
         if (collision.collider.GetComponent<PuntosDebiles>() != null)
         {
             collision.collider.GetComponent<PuntosDebiles>().OnHit(_dmg);

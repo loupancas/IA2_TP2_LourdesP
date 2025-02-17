@@ -43,7 +43,7 @@ public class BaseEnemy : MonoBehaviour
         }
     }
 
-    public virtual void Fatigarse(int fatigue)
+    public void Fatigarse(int fatigue)
     {
         _actualFatigue -= fatigue;
         _actualFatigue = Mathf.Clamp(_actualFatigue, 0, initialFatigue)  ;

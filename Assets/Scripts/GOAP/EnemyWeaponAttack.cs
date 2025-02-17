@@ -18,6 +18,12 @@ public class EnemyWeaponAttack : MonoBaseState
         return this;
     }
 
+    public void WeaponAttack()
+    {
+        _weapon = "HasWeapon";
+        BaseEnemy.Instance.Fatigarse(6);
+    }
+
     public override void Enter(IState from, Dictionary<string, object> transitionParameters = null)
     {
         base.Enter(from, transitionParameters);

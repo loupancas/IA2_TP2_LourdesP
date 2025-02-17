@@ -42,6 +42,7 @@ public class Revolver : WeaponBase
         {
             print("Disparo con revolver");
             _rayHit.collider.GetComponent<EnemigoVolador>()?.TakeDamage(_modifiedDmg);
+            _rayHit.collider.GetComponent<BaseEnemy>()?.TakeDamage(_modifiedDmg);
             _rayHit.collider.GetComponent<EnemigoVolador>()?.AddDamage(_modifiedDmg);
             _rayHit.collider.GetComponent<PuntosDebiles>()?.OnHit(_modifiedDmg);
             _rayHit.collider.GetComponent<Projectile>()?.DevolverBala();
