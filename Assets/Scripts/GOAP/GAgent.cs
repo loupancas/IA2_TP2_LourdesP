@@ -215,7 +215,28 @@ public class GAgent : MonoBehaviour
     {
         _fsm = GPlanner.ConfigureFSM(plan, StartCoroutine);
         _fsm.Active = true;
+
+       // ExecutePlan(plan);
     }
+
+    //private void ExecutePlan(IEnumerable<GAction> plan)
+    //{
+    //    // Ejecutar las acciones planificadas de GOAP en la FSM
+    //    foreach (var action in plan)
+    //    {
+    //        // Cambiar el estado de la FSM según la acción
+    //        if (action.Name == "Buscar jugador")
+    //        {
+    //            _fsm.TriggerTransition(StateTransitions.ToPursuit);
+    //        }
+    //        else if (action.Name == "Ataque de área")
+    //        {
+    //            _fsm.TriggerTransition(StateTransitions.ToAOA);
+    //        }
+    //        // Continuar con más acciones según sea necesario...
+    //    }
+    //}
+
 
     private void OnCantPlan()
     {

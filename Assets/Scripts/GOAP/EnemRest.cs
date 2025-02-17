@@ -16,6 +16,13 @@ public class EnemRest : MonoBaseState
         return this;
     }
 
+    public override void Enter(IState from, Dictionary<string, object> transitionParameters = null)
+    {
+        base.Enter(from, transitionParameters);
+        _gAgent = GetComponent<GAgent>();
+
+    }
+
     public override void UpdateLoop()
     {
         if(_fatigue == 0f) _stateFinished = true;

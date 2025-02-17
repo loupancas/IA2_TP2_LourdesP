@@ -111,10 +111,24 @@ public class EnemyMovement : MonoBaseState
         // Mover hacia el objetivo
         transform.position = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
 
+        //if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
+        //{
+        //    _currentPathIndex++;
+        //}
+
+
+        _gAgent._state.Set("DistanciaPlayer", Vector3.Distance(transform.position, player.position));
+
         if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
         {
             _currentPathIndex++;
+
+            if (_currentPathIndex >= _path.Count)
+            {
+                _stateFinished = true; // Marcar estado como finalizado
+            }
         }
+
     }
 
     public override void UpdateLoop()
@@ -126,7 +140,7 @@ public class EnemyMovement : MonoBaseState
     public override void Enter(IState from, Dictionary<string, object> transitionParameters = null)
     {
         base.Enter(from, transitionParameters);
-       
+        _gAgent = GetComponent<GAgent>();
 
     }
 

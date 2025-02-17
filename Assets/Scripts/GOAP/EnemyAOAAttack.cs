@@ -15,7 +15,12 @@ public class EnemyAOAAttack : MonoBaseState
 
         return this;
     }
+    public override void Enter(IState from, Dictionary<string, object> transitionParameters = null)
+    {
+        base.Enter(from, transitionParameters);
+        _gAgent = GetComponent<GAgent>();
 
+    }
     public override void UpdateLoop()
     {
         if (_distanceToPlayer <= 3f) _stateFinished = true;
