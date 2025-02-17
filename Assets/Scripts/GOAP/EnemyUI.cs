@@ -1,9 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 
 public class EnemyUI : MonoBehaviour
 {
@@ -16,38 +16,82 @@ public class EnemyUI : MonoBehaviour
 
     private void Awake()
     {
-        StartCoroutine(LifeCor());
-        StartCoroutine(FatigueCor());
+        //if (_lifeBar == null)
+        //{
+        //    _lifeBar = BaseEnemy.Instance;
+        //}
+        //if (_fatigueBar == null)
+        //{
+        //    _fatigueBar = BaseEnemy.Instance;
+        //}
+        //actualLife =BaseEnemy.Instance.ActualLife;
+        //actualFatigue = BaseEnemy.Instance.ActualFatigue;
+        //StartCoroutine(LifeCor());
+        //StartCoroutine(FatigueCor());
 
     }
 
+    private void Start()
+    {
+        
+        StartCoroutine(LifeCor());
+        StartCoroutine(FatigueCor());
+    }
+
+
+
+
     IEnumerator LifeCor()
     {
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(0.2f);
         _lifeBar = BaseEnemy.Instance;
-        _lifeBar.OnLifeChange += ChangeLifeUI;
-        actualLife = _lifeBar.ActualLife;
-       
+        if (_lifeBar != null)
+        {
+            _lifeBar.OnLifeChange += ChangeLifeUI;
+            actualLife = _lifeBar.ActualLife;
+        }
+        else
+        {
+            Debug.LogError("BaseEnemy instance is null in LifeCor");
+        }
+
+
+
     }
 
     IEnumerator FatigueCor()
     {
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(0.2f);
         _fatigueBar = BaseEnemy.Instance;
-        _fatigueBar.OnFatigueChange += ChangeFatigueUI;
-        actualFatigue = _fatigueBar.ActualFatigue;
+        if (_fatigueBar != null)
+        {
+            _fatigueBar.OnFatigueChange += ChangeFatigueUI;
+            actualFatigue = _fatigueBar.ActualFatigue;
+        }
+        else
+        {
+            Debug.Log("BaseEnemy instance is null in FatigueCor");
+        }
     }
 
 
     private void ChangeLifeUI()
     {
-        lifeUI.fillAmount = (float)actualLife / _lifeBar.initialLife;
+        if (_lifeBar != null)
+        {
+            actualLife = _lifeBar.ActualLife;
+            lifeUI.fillAmount = (float)actualLife / _lifeBar.initialLife;
+        }
 
     }
 
     private void ChangeFatigueUI()
     {
-        fatigueUI.fillAmount = (float)actualFatigue / _fatigueBar.initialFatigue;
+        if (_fatigueBar != null)
+        {
+            actualFatigue = _fatigueBar.ActualFatigue;
+            fatigueUI.fillAmount = (float)actualFatigue / _fatigueBar.initialFatigue;
+        }
     }
 
 

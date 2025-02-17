@@ -18,7 +18,7 @@ public class BaseEnemy : MonoBehaviour
     public event UpdateFatigueBar OnFatigueChange;
     public static BaseEnemy Instance { get; private set; }
 
-    private void Awake()
+    protected void Awake()
     {
         if (Instance)
         {
@@ -30,6 +30,12 @@ public class BaseEnemy : MonoBehaviour
         _actualFatigue = initialFatigue;
         _actualLife = initialLife;
     }
+
+    //private void Start()
+    //{
+    //    _actualFatigue = initialFatigue;
+    //    _actualLife = initialLife;
+    //}
 
 
     public void TakeDamage(int damage)

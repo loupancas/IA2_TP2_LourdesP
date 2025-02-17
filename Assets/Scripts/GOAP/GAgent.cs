@@ -26,8 +26,9 @@ public class GAgent :  BaseEnemy
     public float _closeView = 1.5f;
 
 
-    private void Awake()
+    private new void Awake()
     {
+        base.Awake();
         _fsm = new FiniteStateMachine(_enemyIdle, StartCoroutine);
         _state = new GState();
         //Idle
@@ -64,6 +65,7 @@ public class GAgent :  BaseEnemy
 
     void Start()
     {
+        
         // **Estado inicial**
         GState originalState = new GState();
         originalState.Set("IsAlive", true);
