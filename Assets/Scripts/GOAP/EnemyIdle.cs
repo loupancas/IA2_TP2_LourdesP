@@ -43,7 +43,7 @@ public class EnemyIdle: MonoBaseState
     {
         base.Enter(from, transitionParameters);
         //_idleTime = constTime + Random.Range(variantTimeMin, variantTimeMax);
-        print("Idle");
+       Debug.Log("EnemyIdle");
         _gAgent = GetComponent<GAgent>();
     }
 

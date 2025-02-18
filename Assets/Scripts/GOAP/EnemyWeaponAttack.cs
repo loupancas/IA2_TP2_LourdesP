@@ -20,26 +20,33 @@ public class EnemyWeaponAttack : MonoBaseState
         return this;
     }
 
+    private void Update()
+    {
+        //Attack();
+    }
+
     public void WeaponAttack()
     {
-        _weapon = "HasWeapon";
+        FirstPersonPlayer.instance.TakeDamage(5);
         BaseEnemy.Instance.Fatigarse(5);
     }
 
     private void Attack()
     {
-        _gAgent._state.Set("DistanciaPlayer", Vector3.Distance(transform.position, player.position));
+        //_gAgent._state.Set("DistanciaPlayer", Vector3.Distance(transform.position, player.position));
 
         if (Vector3.Distance(transform.position, player.position) < _gAgent._closeView)
         {
+            WeaponAttack();
             canAttack = true;
-          
+
         }
     }
 
 
     public override void Enter(IState from, Dictionary<string, object> transitionParameters = null)
     {
+        Debug.Log("EnemyWeaponAttack");
         base.Enter(from, transitionParameters);
         _gAgent = GetComponent<GAgent>();
 
@@ -47,6 +54,6 @@ public class EnemyWeaponAttack : MonoBaseState
 
     public override void UpdateLoop()
     {
-        if (_weapon== "HasWeapon") _stateFinished = true;
+        if (canAttack == true) _stateFinished = true;
     }
 }

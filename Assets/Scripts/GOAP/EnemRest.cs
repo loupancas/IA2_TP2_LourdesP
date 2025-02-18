@@ -18,9 +18,20 @@ public class EnemRest : MonoBaseState
 
     public override void Enter(IState from, Dictionary<string, object> transitionParameters = null)
     {
+        Debug.Log("EnemyRest");
         base.Enter(from, transitionParameters);
         _gAgent = GetComponent<GAgent>();
 
+    }
+
+    private void Update()
+    {
+        Rest();
+    }
+
+    private void Rest()
+    {
+       BaseEnemy.Instance.Fatigarse(-1);
     }
 
     public override void UpdateLoop()

@@ -14,11 +14,13 @@ public class EnemyGetWeapon : MonoBaseState
     public float chaseDistance = 10f;
     public float updatePathInterval = 1f; // Intervalo para recalcular el camino
     public float maxFrameTime = 0.016f; // Tiempo máximo por frame (60 FPS), ajustable desde el Inspector
-    private bool isChasing = false;
+    private bool gotWeapon = false;
     private Coroutine _pathfindingCoroutine;
     private GAgent _gAgent;
     bool _stateFinished;
     string _weapon;
+    private GameObject weaponObject;
+    MeshRenderer _Gun;
     string _hasWeapon;
     void Start()
     {
@@ -41,7 +43,7 @@ public class EnemyGetWeapon : MonoBaseState
             // Recalcular la ruta si el jugador está dentro del rango de persecución
             if (Vector3.Distance(transform.position, weapon.position) < chaseDistance)
             {
-                isChasing = true;
+                gotWeapon = false;
                 Node startNode = FindClosestNode(transform.position);
                 Node endNode = FindClosestNode(weapon.position);
                 if (_pathfindingCoroutine != null)
@@ -98,7 +100,7 @@ public class EnemyGetWeapon : MonoBaseState
     private void PathNotFound()
     {
         Debug.Log("Path not found");
-        isChasing = false;
+        gotWeapon = false;
     }
 
     private void MoveAlongPath()
@@ -122,28 +124,40 @@ public class EnemyGetWeapon : MonoBaseState
             _currentPathIndex++;
         }
 
+        
 
-        _gAgent._state.Set("Weapon","HasWeapon");
+        // _gAgent._state.Set("Weapon","HasWeapon");
 
-       
+
 
     }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("BossWeapon"))
+        {
+            _Gun = weaponObject.GetComponent<MeshRenderer>();
+            _hasWeapon = _gAgent.GetWeapon();
+        }
+    }
 
-    
 
     public override void Enter(IState from, Dictionary<string, object> transitionParameters = null)
     {
+        Debug.Log("EnemyGetWeapon");
         base.Enter(from, transitionParameters);
         _gAgent = GetComponent<GAgent>();
 
     }
     public override void UpdateLoop()
     {
-        if (_weapon == _hasWeapon) _stateFinished = true;
+        if (gotWeapon == true) _stateFinished = true;
     }
 
     public override IState ProcessInput()
     {
-        throw new System.NotImplementedException();
+        if (_stateFinished && Transitions.ContainsKey(StateTransitions.ToIdle))
+            return Transitions[StateTransitions.ToIdle];
+
+        return this;
     }
 }

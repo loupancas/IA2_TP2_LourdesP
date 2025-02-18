@@ -13,6 +13,14 @@ GameObject:
   - component: {fileID: 285743907257799704}
   - component: {fileID: 2864434240699653499}
   - component: {fileID: 3507130845904237240}
+  - component: {fileID: 9095467631210699134}
+  - component: {fileID: 3679222725634186703}
+  - component: {fileID: 7941887124889526521}
+  - component: {fileID: 8211681829091834191}
+  - component: {fileID: 2830470108063622139}
+  - component: {fileID: 4733110106550512152}
+  - component: {fileID: 5359380977158247769}
+  - component: {fileID: 6080730945465254557}
   m_Layer: 0
   m_Name: BooBoss
   m_TagString: Untagged
@@ -128,6 +136,126 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 1.2719674
   m_Center: {x: 0, y: -0.01660049, z: -0.41098082}
+--- !u!114 &9095467631210699134
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2252633549195428307}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 314ab685e7212ef4190477138d4392e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &3679222725634186703
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2252633549195428307}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cedd5def7fdcf8428691c2e553d637a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 0}
+--- !u!114 &7941887124889526521
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2252633549195428307}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c7f1eefdc5bdde4e922e4df9685240b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 0}
+--- !u!114 &8211681829091834191
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2252633549195428307}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c2e0854c88fbfe4694bdc8394e31376, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 0}
+--- !u!114 &2830470108063622139
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2252633549195428307}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00f0673f613dfda4ab9d7e5b8ada4d99, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &4733110106550512152
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2252633549195428307}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7deec98aa0b96e34fa10bed5b4bc4351, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  initialLife: 30
+  initialFatigue: 0
+  _enemyMovement: {fileID: 2864434240699653499}
+  _enemyIdle: {fileID: 9095467631210699134}
+  _enemyAttackAOA: {fileID: 3679222725634186703}
+  _enemyAttackWeapon: {fileID: 7941887124889526521}
+  _enemyRest: {fileID: 2830470108063622139}
+  _enemyAproach: {fileID: 8211681829091834191}
+  _enemyGetWeapon: {fileID: 0}
+  _weapon: none
+  _distanceToPlayer: 5
+  _viewRadius: 3.5
+  _closeView: 2
+  weaponObject: {fileID: 4298983855435769123}
+--- !u!114 &5359380977158247769
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2252633549195428307}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 962fccb363e94464193c26f519c665df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lifeUI: {fileID: 3205136753348336687}
+  fatigueUI: {fileID: 9035925460729151607}
+--- !u!114 &6080730945465254557
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2252633549195428307}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea5847458f90cb642b9bbdc7610b3379, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 3
+  weapon: {fileID: 0}
+  chaseDistance: 10
+  updatePathInterval: 1
+  maxFrameTime: 0.016
 --- !u!1 &2500989698972800524
 GameObject:
   m_ObjectHideFlags: 0

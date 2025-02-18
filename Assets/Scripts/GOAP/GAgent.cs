@@ -46,24 +46,26 @@ public class GAgent :  BaseEnemy
         _fsm.AddTransition(StateTransitions.ToGetWeapon, _enemyIdle, _enemyMovement);
         _fsm.AddTransition(StateTransitions.ToRest, _enemyIdle, _enemyRest);
         _fsm.AddTransition(StateTransitions.ToAproach, _enemyIdle, _enemyAproach);
-
-
+        
         //Move
         _fsm.AddTransition(StateTransitions.ToIdle, _enemyMovement, _enemyIdle);
+        //GetWeapon
+        _fsm.AddTransition(StateTransitions.ToIdle, _enemyGetWeapon, _enemyIdle);
 
         //AttackAOA
         _fsm.AddTransition(StateTransitions.ToIdle, _enemyAttackAOA, _enemyIdle);
         _fsm.AddTransition(StateTransitions.ToPursuit, _enemyAttackAOA, _enemyMovement);
         //AttackWeapon
         _fsm.AddTransition(StateTransitions.ToIdle, _enemyAttackWeapon, _enemyIdle);
-        _fsm.AddTransition(StateTransitions.ToAttack, _enemyAttackWeapon, _enemyAttackWeapon);
+        //_fsm.AddTransition(StateTransitions.ToAttack, _enemyAttackWeapon, _enemyAttackWeapon);
 
         //Rest
         _fsm.AddTransition(StateTransitions.ToIdle, _enemyRest, _enemyIdle);
         _fsm.AddTransition(StateTransitions.ToPursuit, _enemyRest, _enemyMovement);
 
         //Aproach
-        _fsm.AddTransition(StateTransitions.ToIdle, _enemyAproach, _enemyIdle);
+        //_fsm.AddTransition(StateTransitions.ToIdle, _enemyAproach, _enemyIdle);
+        _fsm.AddTransition(StateTransitions.ToAttack, _enemyAproach, _enemyAttackWeapon);
 
 
 
@@ -152,14 +154,12 @@ public class GAgent :  BaseEnemy
 
                                     new GAction("Ataque de área", 10)
                                         .Pre("DistanciaPlayer", 3f)
-                                        .Pre("Fatiga", 6)
                                         .Effect("Fatiga", 6)
                                         .LinkedState(_enemyAttackAOA),
 
                                     new GAction("Ataque con arma", 5)
                                         .Pre("DistanciaPlayer", 1.5f)
                                         .Pre("Weapon", "HasWeapon")
-                                        .Pre("Fatiga", 4)
                                         .Effect("Fatiga", 2)
                                         .LinkedState(_enemyAttackWeapon),
 
@@ -168,7 +168,7 @@ public class GAgent :  BaseEnemy
                                         .Pre("Weapon", "none")
                                         .Pre("DistanciaPlayer", 3f)
                                         .Effect("Weapon", "HasWeapon")
-                                        .LinkedState(_enemyMovement),
+                                        .LinkedState(_enemyGetWeapon),
 
                                     new GAction("Descansar", 15)
                                         .Pre("Fatiga", 1) // Solo descansará si tiene fatiga mayor a 0
@@ -176,7 +176,7 @@ public class GAgent :  BaseEnemy
                                          .LinkedState(_enemyRest),
 
                                     new GAction("Acercarse", 3)
-                                        .Pre("DistanciaPlayer", 1.5f)
+                                        .Pre("DistanciaPlayer", _viewRadius)
                                         .Effect("DistanciaPlayer", 1.4f)
                                         .LinkedState(_enemyAproach)// Reduce la distancia para atacar
                                           };
@@ -258,7 +258,7 @@ public class GAgent :  BaseEnemy
     private void OnCantPlan()
     {
         //TODO: debuggeamos para ver por qué no pudo planear y encontrar como hacer para que no pase nunca mas
-
+      
 
 
     }

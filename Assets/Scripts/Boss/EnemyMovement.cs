@@ -146,6 +146,7 @@ public class EnemyMovement : MonoBaseState
 
     public override void Enter(IState from, Dictionary<string, object> transitionParameters = null)
     {
+        Debug.Log("EnemyMovement");
         base.Enter(from, transitionParameters);
         _gAgent = GetComponent<GAgent>();
 
