@@ -15,13 +15,17 @@ public class EnemyWeaponAttack : MonoBaseState
     public override IState ProcessInput()
     {
         if (_stateFinished && Transitions.ContainsKey(StateTransitions.ToIdle))
+        {
+            Debug.Log("Transitioning to Idle from EnemyWeaponAAttack");
             return Transitions[StateTransitions.ToIdle];
+        }
 
         return this;
     }
 
     private void Update()
     {
+        //Debug.Log("EnemyWeaponAttack Update");
         //Attack();
     }
 
@@ -37,6 +41,8 @@ public class EnemyWeaponAttack : MonoBaseState
 
         if (Vector3.Distance(transform.position, player.position) < _gAgent._closeView)
         {
+            Debug.Log("Performing Weapon Attack");
+
             WeaponAttack();
             canAttack = true;
 
@@ -46,7 +52,7 @@ public class EnemyWeaponAttack : MonoBaseState
 
     public override void Enter(IState from, Dictionary<string, object> transitionParameters = null)
     {
-        Debug.Log("EnemyWeaponAttack");
+        Debug.Log("Enetering EnemyWeaponAttack");
         base.Enter(from, transitionParameters);
         _gAgent = GetComponent<GAgent>();
 
@@ -54,6 +60,10 @@ public class EnemyWeaponAttack : MonoBaseState
 
     public override void UpdateLoop()
     {
-        if (canAttack == true) _stateFinished = true;
+        if (canAttack == true)
+        {
+            Debug.Log("EnemyWeaponAttack finished");
+            _stateFinished = true;
+        }
     }
 }

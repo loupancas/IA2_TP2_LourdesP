@@ -11,14 +11,18 @@ public class EnemRest : MonoBaseState
     public override IState ProcessInput()
     {
         if (_stateFinished && Transitions.ContainsKey(StateTransitions.ToIdle))
+        {
+            Debug.Log("Transitioning to Idle from EnemyRest");
             return Transitions[StateTransitions.ToIdle];
+        }
+           
 
         return this;
     }
 
     public override void Enter(IState from, Dictionary<string, object> transitionParameters = null)
     {
-        Debug.Log("EnemyRest");
+        Debug.Log("Entering EnemyRest");
         base.Enter(from, transitionParameters);
         _gAgent = GetComponent<GAgent>();
 
@@ -26,17 +30,23 @@ public class EnemRest : MonoBaseState
 
     private void Update()
     {
-        Rest();
+        //Rest();
     }
 
     private void Rest()
     {
-       BaseEnemy.Instance.Fatigarse(-1);
+        Debug.Log("Resting");
+        BaseEnemy.Instance.Fatigarse(-1);
     }
 
     public override void UpdateLoop()
     {
-        if(_fatigue == 0f) _stateFinished = true;
+        if(_fatigue == 0f)
+        {
+            Debug.Log("EnemyRest finished");
+            _stateFinished = true;
+        }
+           
         
     }
 }

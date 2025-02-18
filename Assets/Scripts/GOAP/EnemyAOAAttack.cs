@@ -13,13 +13,17 @@ public class EnemyAOAAttack : MonoBaseState
     public override IState ProcessInput()
     {
         if (_stateFinished && Transitions.ContainsKey(StateTransitions.ToIdle))
+        {
+            Debug.Log("Transitioning to Idle from EnemyAOAAttack");
             return Transitions[StateTransitions.ToIdle];
+        }
 
         return this;
     }
 
     private void Update()
     {
+        //Debug.Log("EnemyAOAAttack Update");
         //Attack();
     }
 
@@ -28,6 +32,7 @@ public class EnemyAOAAttack : MonoBaseState
 
         if (Vector3.Distance(transform.position, player.position) < _gAgent._viewRadius)
         {
+            Debug.Log("Performing AOA Attack");
             AOAAttack();
             canAttack = true;
 
@@ -42,13 +47,17 @@ public class EnemyAOAAttack : MonoBaseState
 
     public override void Enter(IState from, Dictionary<string, object> transitionParameters = null)
     {
-        Debug.Log("EnemyAOAAttack");
+        Debug.Log("Entering EnemyAOAAttack");
         base.Enter(from, transitionParameters);
         _gAgent = GetComponent<GAgent>();
 
     }
     public override void UpdateLoop()
     {
-        if (canAttack == true) _stateFinished = true;
+        if (canAttack == true)
+        {
+            Debug.Log("EnemyAOAAttack finished");
+            _stateFinished = true;
+        }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using System;
+using Unity.IO.LowLevel.Unsafe;
 
 public class GAgent :  BaseEnemy
 {
@@ -32,10 +33,6 @@ public class GAgent :  BaseEnemy
         base.Awake();
         _Gun = weaponObject.GetComponent<MeshRenderer>();
         _Gun.enabled = false;
-       
-
-
-
 
         _fsm = new FiniteStateMachine(_enemyIdle, StartCoroutine);
         _state = new GState();
@@ -97,10 +94,10 @@ public class GAgent :  BaseEnemy
     {
         _fsm.Update();
 
-        _state.Set("IsAlive", true);
-        _state.Set("Weapon", GetWeapon());
-        _state.Set("DistanciaPlayer", GetDistanceToPlayer());
-        _state.Set("Fatiga", GetFatigue());
+        //_state.Set("IsAlive", true);
+        //_state.Set("Weapon", GetWeapon());
+        //_state.Set("DistanciaPlayer", GetDistanceToPlayer());
+        //_state.Set("Fatiga", GetFatigue());
 
         PlanAndExecute();
     }
@@ -273,7 +270,49 @@ public class GAgent :  BaseEnemy
        
     }
 
+    //private IState currentState;
+    //private Dictionary<StateTransitions, IState> stateTransitions;
 
+    //private void Start()
+    //{
+    //    // Inicializa los estados y las transiciones
+    //    stateTransitions = new Dictionary<StateTransitions, IState>
+    //    {
+    //        { StateTransitions.ToIdle, new IdleState(this) },
+    //        { StateTransitions.ToMovement, new MovementState(this) },
+    //        { StateTransitions.ToAOAAttack, new EnemyAOAAttack(this) },
+    //        { StateTransitions.ToWeaponAttack, new EnemyWeaponAttack(this) },
+    //        { StateTransitions.ToAproach, new EnemyAproach(this) },
+    //        { StateTransitions.ToRest, new EnemRest(this) }
+    //    };
+
+    //    // Establece el estado inicial
+    //    currentState = stateTransitions[StateTransitions.ToIdle];
+    //}
+
+    //private void Update()
+    //{
+    //    // Procesa la entrada y actualiza el estado actual
+    //    IState nextState = currentState.ProcessInput();
+    //    if (nextState != currentState)
+    //    {
+    //        currentState.Exit();
+    //        currentState = nextState;
+    //        currentState.Enter();
+    //    }
+
+    //    currentState.UpdateLoop();
+    //}
+
+    //public void ChangeState(StateTransitions transition)
+    //{
+    //    if (stateTransitions.ContainsKey(transition))
+    //    {
+    //        currentState.Exit();
+    //        currentState = stateTransitions[transition];
+    //        currentState.Enter();
+    //    }
+    //}
 
 
 }

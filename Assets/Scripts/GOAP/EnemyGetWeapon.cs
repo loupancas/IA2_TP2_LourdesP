@@ -33,6 +33,7 @@ public class EnemyGetWeapon : MonoBaseState
 
     private void Update()
     {
+        //Debug.Log("EnemyGetWeapon Update");
         MoveAlongPath();
     }
 
@@ -124,7 +125,7 @@ public class EnemyGetWeapon : MonoBaseState
             _currentPathIndex++;
         }
 
-        
+        Debug.Log("EnemyGetWeapon MoveAlongPath");
 
         // _gAgent._state.Set("Weapon","HasWeapon");
 
@@ -143,20 +144,28 @@ public class EnemyGetWeapon : MonoBaseState
 
     public override void Enter(IState from, Dictionary<string, object> transitionParameters = null)
     {
-        Debug.Log("EnemyGetWeapon");
+        Debug.Log("Entering EnemyGetWeapon");
         base.Enter(from, transitionParameters);
         _gAgent = GetComponent<GAgent>();
 
     }
     public override void UpdateLoop()
     {
-        if (gotWeapon == true) _stateFinished = true;
+        if (gotWeapon == true)
+        {
+            Debug.Log("EnemyGetWeapon finished");
+            _stateFinished = true;
+        }
+           
     }
 
     public override IState ProcessInput()
     {
         if (_stateFinished && Transitions.ContainsKey(StateTransitions.ToIdle))
+        {
+            Debug.Log("Transitioning to Idle from EnemyGetWeapon");
             return Transitions[StateTransitions.ToIdle];
+        }
 
         return this;
     }
