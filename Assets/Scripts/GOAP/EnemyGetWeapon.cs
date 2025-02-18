@@ -29,10 +29,15 @@ public class EnemyGetWeapon : MonoBaseState
         StartCoroutine(UpdatePathRoutine());
     }
 
+    private void Update()
+    {
+        MoveAlongPath();
+    }
+
     private IEnumerator UpdatePathRoutine()
     {
-        while (true)
-        {
+        //while (true)
+        //{
             // Recalcular la ruta si el jugador está dentro del rango de persecución
             if (Vector3.Distance(transform.position, weapon.position) < chaseDistance)
             {
@@ -45,12 +50,12 @@ public class EnemyGetWeapon : MonoBaseState
                 }
                 _pathfindingCoroutine = StartCoroutine(_aStar.Run(startNode, node => node == endNode, Explode, GetHeuristic));
             }
-            else
-            {
-                isChasing = false;
-            }
+            //else
+            //{
+            //    isChasing = false;
+            //}
             yield return new WaitForSeconds(updatePathInterval); // Esperar antes de recalcular la ruta
-        }
+        //}
     }
 
 
@@ -124,9 +129,7 @@ public class EnemyGetWeapon : MonoBaseState
 
     }
 
-    public void ObtainWeapon()
-    {
-    }
+    
 
     public override void Enter(IState from, Dictionary<string, object> transitionParameters = null)
     {

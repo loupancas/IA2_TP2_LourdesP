@@ -21,15 +21,22 @@ public class GAgent :  BaseEnemy
     [SerializeField] private EnemyAproach _enemyAproach;
     [SerializeField] private EnemyGetWeapon _enemyGetWeapon;
 
-
+    public string _weapon = "none";
     public float _distanceToPlayer = 5f;
     public float _viewRadius = 5f;
     public float _closeView = 1.5f;
-
-
+    MeshRenderer _Gun;
+    [SerializeField] private GameObject weaponObject;
     private new void Awake()
     {
         base.Awake();
+        _Gun = weaponObject.GetComponent<MeshRenderer>();
+        _Gun.enabled = false;
+       
+
+
+
+
         _fsm = new FiniteStateMachine(_enemyIdle, StartCoroutine);
         _state = new GState();
         //Idle
@@ -199,7 +206,12 @@ public class GAgent :  BaseEnemy
 
     public string GetWeapon()
     {
-        //tira raycast o algo así
+        if (_state.Get<string>("Weapon") == "HasWeapon")
+        {
+            _Gun.enabled = true;
+            return "HasWeapon";
+        }
+
         return "none";
     }
 
