@@ -10,6 +10,8 @@ public class EnemyWeaponAttack : MonoBaseState
     private GAgent _gAgent;
     bool _stateFinished;
     string _weapon;
+    public Transform player;
+    bool canAttack;
     public override IState ProcessInput()
     {
         if (_stateFinished && Transitions.ContainsKey(StateTransitions.ToIdle))
@@ -21,8 +23,20 @@ public class EnemyWeaponAttack : MonoBaseState
     public void WeaponAttack()
     {
         _weapon = "HasWeapon";
-        BaseEnemy.Instance.Fatigarse(6);
+        BaseEnemy.Instance.Fatigarse(5);
     }
+
+    private void Attack()
+    {
+        _gAgent._state.Set("DistanciaPlayer", Vector3.Distance(transform.position, player.position));
+
+        if (Vector3.Distance(transform.position, player.position) < _gAgent._closeView)
+        {
+            canAttack = true;
+          
+        }
+    }
+
 
     public override void Enter(IState from, Dictionary<string, object> transitionParameters = null)
     {

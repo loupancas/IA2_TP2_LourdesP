@@ -19,6 +19,7 @@ public class GAgent :  BaseEnemy
     [SerializeField] private EnemyWeaponAttack _enemyAttackWeapon;
     [SerializeField] private EnemRest _enemyRest;
     [SerializeField] private EnemyAproach _enemyAproach;
+    [SerializeField] private EnemyGetWeapon _enemyGetWeapon;
 
 
     public float _distanceToPlayer = 5f;
@@ -249,14 +250,6 @@ public class GAgent :  BaseEnemy
 
 
     }
-
-    //public void OnHit(int Dmg)
-    //{
-      
-    //    TakeDamage(Dmg);
-        
-
-    //}
 
     void OnDrawGizmos()
     {
