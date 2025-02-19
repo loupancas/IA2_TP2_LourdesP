@@ -2,7 +2,7 @@
 using System.Linq;
 
 public static class DictionaryExtensions {
-    public static bool In<T>(this T x, HashSet<T> set) {
+    public static bool Iin<T>(this T x, HashSet<T> set) {
         return set.Contains(x);
     }
 

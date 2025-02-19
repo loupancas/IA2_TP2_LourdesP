@@ -62,7 +62,7 @@ public class AStarNormal<Node> where Node : class
 
                 foreach (var ne in neighbours)
                 {
-                    if (ne.endpoint.Inn(state.closed))
+                    if (ne.endpoint.In(state.closed))
                         continue;
 
                     var gNeighbour = gCandidate + ne.cost;

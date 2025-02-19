@@ -70,6 +70,7 @@ public class GPlanner : MonoBehaviour
         Check(observedState, ItemType.Key);
         Check(observedState, ItemType.NewEntity);
         Check(observedState, ItemType.Cuchillo);
+        Check(observedState, ItemType.Espada);
         Check(observedState, ItemType.Door);
         //si no se usan objetos modulares se puede eliminar
 
