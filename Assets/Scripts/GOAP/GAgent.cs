@@ -1,10 +1,8 @@
 using FSM;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using System;
-using Unity.IO.LowLevel.Unsafe;
 
 public class GAgent :  BaseEnemy
 {
@@ -74,18 +72,13 @@ public class GAgent :  BaseEnemy
     {
         
         // **Estado inicial**
-        GState originalState = new GState();
-        originalState.Set("IsAlive", true);
-        originalState.Set("Weapon", "none");
-        originalState.Set("DistanciaPlayer", 5f); // Inicialmente lejos
-        originalState.Set("Fatiga", 0);
-        GState clonedState = new GState(originalState);
+       
         // **Definir acciones**
 
         // Definir acciones
         //planngoap();
+        PlanAndExecute();
 
-        
 
     }
 
@@ -94,105 +87,53 @@ public class GAgent :  BaseEnemy
     {
         _fsm.Update();
 
-        //_state.Set("IsAlive", true);
-        //_state.Set("Weapon", GetWeapon());
-        //_state.Set("DistanciaPlayer", GetDistanceToPlayer());
-        //_state.Set("Fatiga", GetFatigue());
 
-        PlanAndExecute();
     }
 
-    private void planngoap()
-    {
-        actions = new List<GAction>
-        {
-        new GAction("Buscar jugador", 3)
-            .Effect("DistanciaPlayer", 2.5f)
-            .LinkedState(_enemyMovement),
-
-        new GAction("Ataque de área", 10)
-            .Pre("DistanciaPlayer", 3f)
-            .Pre("Fatiga", 6)
-            .Effect("Fatiga", 6)
-            .LinkedState(_enemyAttackAOA),
-
-        new GAction("Ataque con arma", 5)
-            .Pre("DistanciaPlayer", 1.5f)
-            .Pre("Weapon", "HasWeapon")
-            .Pre("Fatiga", 4)
-            .Effect("Fatiga", 2)
-            .LinkedState(_enemyAttackWeapon),
-
-        new GAction("Obtener arma", 1)
-            .Pre("IsAlive", true)
-            .Pre("Weapon", "none")
-            .Pre("DistanciaPlayer", 3f)
-            .Effect("Weapon", "HasWeapon")
-            .LinkedState(_enemyMovement),
-
-        new GAction("Descansar", 15)
-            .Pre("Fatiga", 1) // Solo descansará si tiene fatiga mayor a 0
-            .Effect("Fatiga", 0)
-             .LinkedState(_enemyRest),
-
-        new GAction("Acercarse", 3)
-            .Pre("DistanciaPlayer", 1.5f)
-            .Effect("DistanciaPlayer", 1.4f)
-            .LinkedState(_enemyAproach)// Reduce la distancia para atacar
-         };
-    }
-
+   
     private void PlanAndExecute()
     {
+        var initialState = new GState { worldState = new WorldState { playerHP = 30, distance = 10, hasWeapon = false, weapon = "none" } };
+        var goalState = new GState { worldState = new WorldState { playerHP = 0, distance = 0, hasWeapon = true, weapon = "espada" } };
         var actions = new List<GAction>{
-                                    new GAction("Buscar jugador", 3)
-                                         .Effect("DistanciaPlayer", 2.5f)
-                                        .LinkedState(_enemyMovement),
+                                    new GAction("Buscar jugador", 3,
+                                         s => s.worldState.distance > 0,
+                                         s => { var ns = s.worldState.Clone(); ns.distance -= 5; return new GState { worldState = ns }; }),
 
-                                    new GAction("Ataque de área", 10)
-                                        .Pre("DistanciaPlayer", 3f)
-                                        .Effect("Fatiga", 6)
-                                        .LinkedState(_enemyAttackAOA),
-
-                                    new GAction("Ataque con arma", 5)
-                                        .Pre("DistanciaPlayer", 1.5f)
-                                        .Pre("Weapon", "HasWeapon")
-                                        .Effect("Fatiga", 2)
-                                        .LinkedState(_enemyAttackWeapon),
-
-                                    new GAction("Obtener arma", 1)
-                                        .Pre("IsAlive", true)
-                                        .Pre("Weapon", "none")
-                                        .Pre("DistanciaPlayer", 3f)
-                                        .Effect("Weapon", "HasWeapon")
-                                        .LinkedState(_enemyGetWeapon),
-
-                                    new GAction("Descansar", 15)
-                                        .Pre("Fatiga", 1) // Solo descansará si tiene fatiga mayor a 0
-                                        .Effect("Fatiga", 0)
-                                         .LinkedState(_enemyRest),
-
-                                    new GAction("Acercarse", 3)
-                                        .Pre("DistanciaPlayer", _viewRadius)
-                                        .Effect("DistanciaPlayer", 1.4f)
-                                        .LinkedState(_enemyAproach)// Reduce la distancia para atacar
+                                    new GAction("Ataque con arma", 5,
+                                         s => s.worldState.weapon == "espada" && s.worldState.distance < 3,
+                                         s => { var ns = s.worldState.Clone(); ns.playerHP -= 10; return new GState { worldState = ns }; }),
+                                    new GAction("Obtener arma",1,
+                                    s => s.worldState.weapon == "none",
+                                    s => { var ns = s.worldState.Clone(); ns.weapon = "espada"; return new GState { worldState = ns }; }),
+                                    new GAction("Descansar", 15,
+                                        s => s.worldState.playerHP < 50,
+                                        s => { var ns = s.worldState.Clone(); ns.playerHP += 20; return new GState { worldState = ns }; }),
                                           };
 
-           var from = new GState();
-           from.state["isPlayerInSight"] = IsPlayerInSight();
-           from.state["Weapon"] = GetWeapon();
-           from.state["DistanciaPlayer"] = GetDistanceToPlayer();
-           from.state["Fatiga"] = GetFatigue();
-           from.state["isPlayerAlive"] = true;
 
-           var to = new GState();
-           to.state["isPlayerAlive"] = false;
+        var plan = Goap.Execute(initialState, goalState,
+            s => s.worldState.playerHP >= goalState.worldState.playerHP
+                 && s.worldState.distance <= goalState.worldState.distance
+                 && s.worldState.weapon == goalState.worldState.weapon,
+            s => Math.Abs(goalState.worldState.playerHP - s.worldState.playerHP) + Math.Abs(goalState.worldState.distance - s.worldState.distance),
+            actions);
 
-          var planner = new GPlanner();
+        //var from = new GState();
+        //   from.state["isPlayerInSight"] = IsPlayerInSight();
+        //   from.state["Weapon"] = GetWeapon();
+        //   from.state["DistanciaPlayer"] = GetDistanceToPlayer();
+        //   from.state["Fatiga"] = GetFatigue();
+        //   from.state["isPlayerAlive"] = true;
+
+        //   var to = new GState();
+        //   to.state["isPlayerAlive"] = false;
+
+        //  var planner = new GPlanner();
           planner.OnPlanCompleted += OnPlanCompleted;
           planner.OnCantPlan += OnCantPlan;
 
-          planner.Run(from, to, actions, StartCoroutine);
+          //planner.Run(from, to, actions, StartCoroutine);
     }
 
     public bool IsPlayerInSight()
@@ -203,11 +144,11 @@ public class GAgent :  BaseEnemy
 
     public string GetWeapon()
     {
-        if (_state.Get<string>("Weapon") == "HasWeapon")
-        {
-            _Gun.enabled = true;
-            return "HasWeapon";
-        }
+        //if (_state.Get<string>("Weapon") == "HasWeapon")
+        //{
+        //    _Gun.enabled = true;
+        //    return "HasWeapon";
+        //}
 
         return "none";
     }
@@ -230,27 +171,9 @@ public class GAgent :  BaseEnemy
         _fsm = GPlanner.ConfigureFSM(plan, StartCoroutine);
         _fsm.Active = true;
 
-       // ExecutePlan(plan);
     }
 
-    //private void ExecutePlan(IEnumerable<GAction> plan)
-    //{
-    //    // Ejecutar las acciones planificadas de GOAP en la FSM
-    //    foreach (var action in plan)
-    //    {
-    //        // Cambiar el estado de la FSM según la acción
-    //        if (action.Name == "Buscar jugador")
-    //        {
-    //            _fsm.TriggerTransition(StateTransitions.ToPursuit);
-    //        }
-    //        else if (action.Name == "Ataque de área")
-    //        {
-    //            _fsm.TriggerTransition(StateTransitions.ToAOA);
-    //        }
-    //        // Continuar con más acciones según sea necesario...
-    //    }
-    //}
-
+ 
 
     private void OnCantPlan()
     {
@@ -270,50 +193,6 @@ public class GAgent :  BaseEnemy
        
     }
 
-    //private IState currentState;
-    //private Dictionary<StateTransitions, IState> stateTransitions;
-
-    //private void Start()
-    //{
-    //    // Inicializa los estados y las transiciones
-    //    stateTransitions = new Dictionary<StateTransitions, IState>
-    //    {
-    //        { StateTransitions.ToIdle, new IdleState(this) },
-    //        { StateTransitions.ToMovement, new MovementState(this) },
-    //        { StateTransitions.ToAOAAttack, new EnemyAOAAttack(this) },
-    //        { StateTransitions.ToWeaponAttack, new EnemyWeaponAttack(this) },
-    //        { StateTransitions.ToAproach, new EnemyAproach(this) },
-    //        { StateTransitions.ToRest, new EnemRest(this) }
-    //    };
-
-    //    // Establece el estado inicial
-    //    currentState = stateTransitions[StateTransitions.ToIdle];
-    //}
-
-    //private void Update()
-    //{
-    //    // Procesa la entrada y actualiza el estado actual
-    //    IState nextState = currentState.ProcessInput();
-    //    if (nextState != currentState)
-    //    {
-    //        currentState.Exit();
-    //        currentState = nextState;
-    //        currentState.Enter();
-    //    }
-
-    //    currentState.UpdateLoop();
-    //}
-
-    //public void ChangeState(StateTransitions transition)
-    //{
-    //    if (stateTransitions.ContainsKey(transition))
-    //    {
-    //        currentState.Exit();
-    //        currentState = stateTransitions[transition];
-    //        currentState.Enter();
-    //    }
-    //}
-
-
+    
 }
 

@@ -5,7 +5,6 @@ using System.Linq;
 public class GState
 {
     public WorldState worldState;
-    public Dictionary<string, object> state = new Dictionary<string, object>();//object sera int,string,float
     public GAction generatingAction = null;
     public int step = 0;
 
@@ -14,39 +13,18 @@ public class GState
     public GState(GAction gen = null)
     {
         generatingAction = gen;
-        worldState = new WorldState()
-        {
-            //values = new Dictionary<string, bool>() // Muy importane inicializarlo en este caso
-
-            playerHP = 100,
-            distance = 0,
-            weapon = "",
-            hasWeapon = false
-        };
-
+        worldState = new WorldState();
 
     }
 
     // Constructor para copia
     public GState(GState source, GAction gen = null)
     {
-        //foreach (var elem in source.state)
-        //{
-        //    if (state.ContainsKey(elem.Key))
-        //        state[elem.Key] = elem.Value;
-        //    else
-        //        state.Add(elem.Key, elem.Value);
-        //}
+      
         worldState = source.worldState.Clone();
         generatingAction = gen;
     }
     #endregion
-
-    //public void Set<T>(string key, T value) => state[key] = value; 
-    //public T Get<T>(string key) => state.ContainsKey(key) ? (T)state[key] : default;
-    //public bool Has(string key) => state.ContainsKey(key);
-
-    //crear un diccionario con valores int float string bool 
 
 
     public override bool Equals(object obj)
@@ -69,13 +47,16 @@ public class GState
 
     public override int GetHashCode()
     {
-        return state.Count == 0 ? 0 : 31 * state.Count + 31 * 31 * state.First().GetHashCode();
+        //return state.Count == 0 ? 0 : 31 * state.Count + 31 * 31 * state.First().GetHashCode();
+
+        return worldState.GetHashCode();
     }
 
     public override string ToString()
     {
-        return "---> " + (generatingAction != null ? generatingAction.Name : "NULL") + "\n" +
-               string.Join("\n", state.OrderBy(x => x.Key).Select(kv => $"{kv.Key}: {kv.Value}"));
+        //return "---> " + (generatingAction != null ? generatingAction.Name : "NULL") + "\n" +
+               //string.Join("\n", state.OrderBy(x => x.Key).Select(kv => $"{kv.Key}: {kv.Value}"));
+        return $"HP: , Distancia: , Vivo: , Arma: ";
     }
 
 }
@@ -87,8 +68,6 @@ public struct WorldState
     public float distance;
     public string weapon;
     public bool hasWeapon;
-    //float string bool 
-    //public Dictionary<string, bool> values;// eliminar y utilizar todas las variables ejemplo playerHP
 
     //MUY IMPORTANTE TENER UN CLONE PARA NO TENER REFENCIAS A LO VIEJO
     public WorldState Clone()
@@ -96,7 +75,9 @@ public struct WorldState
         return new WorldState()
         {
             playerHP = this.playerHP,
-            //values = this.values.ToDictionary(kv => kv.Key, kv => kv.Value)//eliminar
+            distance = this.distance,
+            weapon = this.weapon,
+            hasWeapon = this.hasWeapon
         };
     }
 }

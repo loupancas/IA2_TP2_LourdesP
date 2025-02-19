@@ -118,7 +118,7 @@ public class EnemyMovement : MonoBaseState
         //}
 
 
-        _gAgent._state.Set("DistanciaPlayer", Vector3.Distance(transform.position, player.position));
+        //_gAgent._state.Set("DistanciaPlayer", Vector3.Distance(transform.position, player.position));
 
         if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
         {

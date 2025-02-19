@@ -58,7 +58,7 @@ public class Navigation : MonoBehaviour
     public IEnumerable<Item> AllInventories()
     {
         return AllItems()
-            .Select(x => x.GetComponent<Entity>())
+            .Select(x => x.GetComponent<NewEntity>())
         .Where(x => x != null)
             .Aggregate(FList.Create<Item>(), (a, x) => a + x.items);
     }

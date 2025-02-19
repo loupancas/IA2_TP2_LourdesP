@@ -22,7 +22,7 @@ public static class Utility
         }
     }
 
-    public static bool In<T>(this T x, HashSet<T> set)
+    public static bool Inn<T>(this T x, HashSet<T> set)
     {
         return set.Contains(x);
     }

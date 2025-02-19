@@ -6,22 +6,23 @@ public enum ItemType
     Key,
     Door,
     Entity,
-    Mace,
-    PastaFrola,
+    Prision,
+    Cuchillo,
+    Espada,
 }
 
 public class Item : MonoBehaviour
 {
     public ItemType type;
-    //private Waypoint _wp;
+    private Waypoint _wp;
     private bool _insideInventory;
 
     public void OnInventoryAdd()
     {
         Destroy(GetComponent<Rigidbody>());
         _insideInventory = true;
-        //if (_wp)
-            //_wp.nearbyItems.Remove(this);
+        if (_wp)
+            _wp.nearbyItems.Remove(this);
     }
 
     public void OnInventoryRemove()
@@ -32,33 +33,33 @@ public class Item : MonoBehaviour
 
     private void Start()
     {
-        //_wp = Navigation.instance.NearestTo(transform.position);
-        //_wp.nearbyItems.Add(this);
+        _wp = Navigation.instance.NearestTo(transform.position);
+        _wp.nearbyItems.Add(this);
     }
 
     public void Kill()
     {
-        var ent = GetComponent<Entity>();
+        var ent = GetComponent<NewEntity>();
         if (ent != null)
         {
-            //foreach (var it in ent.RemoveAllitems())
-                //it.transform.parent = null;
+            foreach (var it in ent.RemoveAllitems())
+                it.transform.parent = null;
         }
         Destroy(gameObject);
     }
 
     private void OnDestroy()
     {
-        //_wp.nearbyItems.Remove(this);
+        _wp.nearbyItems.Remove(this);
     }
 
     private void Update()
     {
         if (!_insideInventory)
         {
-           // _wp.nearbyItems.Remove(this);
-           // _wp = Navigation.instance.NearestTo(transform.position);
-            //_wp.nearbyItems.Add(this);
+           _wp.nearbyItems.Remove(this);
+           _wp = Navigation.instance.NearestTo(transform.position);
+           _wp.nearbyItems.Add(this);
         }
     }
 }

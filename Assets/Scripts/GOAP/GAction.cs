@@ -8,6 +8,8 @@ public class GAction
 {
     public string Name { get; private set; }
     public float Cost { get; private set; }
+    public readonly Func<GState, bool> Preconditions;
+    public readonly Func<GState, GState> Effects;
     public ItemType item;
 
     public Dictionary<string, object> preconditions { get; private set; }
@@ -15,12 +17,12 @@ public class GAction
     public IState linkedState { get; private set; }
     //fsm o ienumerable
 
-    public GAction(string name, float cost)
+    public GAction(string name, float cost, Func<GState, bool> pre, Func<GState, GState> eff)
     {
         Name = name;
         Cost = cost;
-        preconditions = new Dictionary<string, object>();
-        effects = new Dictionary<string, object>();
+        Preconditions = pre;
+        Effects =eff;
     }
 
 

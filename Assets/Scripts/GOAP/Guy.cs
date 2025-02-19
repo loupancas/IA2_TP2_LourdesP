@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using IA2;
-using UnityEngine.ProBuilder.Shapes;
-
 public enum ActionEntity
 {
     Kill,
@@ -21,28 +19,28 @@ public class Guy : MonoBehaviour
     private EventFSM<ActionEntity> _fsm;
     private Item _target;
 
-    private Entity _ent;
+    private NewEntity _ent;
 
     IEnumerable<Tuple<ActionEntity, Item>> _plan;
 
-    private void PerformAttack(Entity us, Item other)
+    private void PerformAttack(NewEntity us, Item other)
     {
         Debug.Log("PerformAttack", other.gameObject);
         if (other != _target) return;
 
-        var mace = _ent.items.FirstOrDefault(it => it.type == ItemType.Mace);
-        if (mace)
+        var prision = _ent.items.FirstOrDefault(it => it.type == ItemType.Prision);
+        if (prision)
         {
             other.Kill();
             if (other.type == ItemType.Door)
-                Destroy(_ent.Removeitem(mace).gameObject);
+                Destroy(_ent.Removeitem(prision).gameObject);
             _fsm.Feed(ActionEntity.NextStep);
         }
         else
             _fsm.Feed(ActionEntity.FailedStep);
     }
 
-    private void PerformOpen(Entity us, Item other)
+    private void PerformOpen(NewEntity us, Item other)
     {
         if (other != _target) return;
 
@@ -58,7 +56,7 @@ public class Guy : MonoBehaviour
             _fsm.Feed(ActionEntity.FailedStep);
     }
 
-    private void PerformPickUp(Entity us, Item other)
+    private void PerformPickUp(NewEntity us, Item other)
     {
         if (other != _target) return;
 
@@ -66,14 +64,14 @@ public class Guy : MonoBehaviour
         _fsm.Feed(ActionEntity.NextStep);
     }
 
-    private void NextStep(Entity ent, Waypoint wp, bool reached)
+    private void NextStep(NewEntity ent, Waypoint wp, bool reached)
     {
         _fsm.Feed(ActionEntity.NextStep);
     }
 
     private void Awake()
     {
-        _ent = GetComponent<Entity>();
+        _ent = GetComponent<NewEntity>();
 
         var any = new State<ActionEntity>("any");
 
