@@ -128,7 +128,7 @@ public class NewEntity : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        var e = other.GetComponent<Entity>();
+        var e = other.GetComponent<NewEntity>();
         if (e != null && e != this)
         {
             Debug.Log(e.name + " hit " + name);

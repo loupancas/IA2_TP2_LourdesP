@@ -1,96 +1,230 @@
-using FSM;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using IA2;
+using System.Linq;
+
+public enum ActionEntity
+{
+    Kill,
+    PickUp,
+    NextStep,
+    FailedStep,
+    Open,
+    Success
+}
+
+
 
 public class GAgent :  BaseEnemy
 {
-    public GState _state;
-    private List<GAction> actions = new List<GAction>();
-    private Queue<GAction> actionQueue;
-    private GPlanner planner = new GPlanner();
-    private FiniteStateMachine _fsm;
+    private EventFSM<ActionEntity> _fsm;
+    private Item _target;
 
-    [SerializeField] private EnemyMovement _enemyMovement;
-    [SerializeField] private EnemyIdle _enemyIdle;
-    [SerializeField] private EnemyAOAAttack _enemyAttackAOA;
-    [SerializeField] private EnemyWeaponAttack _enemyAttackWeapon;
-    [SerializeField] private EnemRest _enemyRest;
-    [SerializeField] private EnemyAproach _enemyAproach;
-    [SerializeField] private EnemyGetWeapon _enemyGetWeapon;
+    private NewEntity _ent;
 
-    public string _weapon = "none";
-    public float _distanceToPlayer = 5f;
+    IEnumerable<Tuple<ActionEntity, Item>> _plan;
+
     public float _viewRadius = 5f;
     public float _closeView = 1.5f;
-    MeshRenderer _Gun;
-    [SerializeField] private GameObject weaponObject;
+
+    private void PerformAttack(NewEntity us, Item other)
+    {
+        Debug.Log("PerformAttack", other.gameObject);
+        if (other != _target) return;
+
+        var espada = _ent.items.FirstOrDefault(it => it.type == ItemType.Prision);
+        if (espada)
+        {
+            other.Kill();
+            if (other.type == ItemType.Door)
+                Destroy(_ent.Removeitem(espada).gameObject);
+            _fsm.Feed(ActionEntity.NextStep);
+        }
+        else
+            _fsm.Feed(ActionEntity.FailedStep);
+    }
+
+    private void PerformOpen(NewEntity us, Item other)
+    {
+        if (other != _target) return;
+
+        var key = _ent.items.FirstOrDefault(it => it.type == ItemType.Key);
+        var door = other.GetComponent<Door>();
+        if (door && key)
+        {
+            door.Open();
+            Destroy(_ent.Removeitem(key).gameObject);
+            _fsm.Feed(ActionEntity.NextStep);
+        }
+        else
+            _fsm.Feed(ActionEntity.FailedStep);
+    }
+
+    private void PerformPickUp(NewEntity us, Item other)
+    {
+        if (other != _target) return;
+
+        _ent.AddItem(other);
+        _fsm.Feed(ActionEntity.NextStep);
+    }
+
+    private void NextStep(NewEntity ent, Waypoint wp, bool reached)
+    {
+        _fsm.Feed(ActionEntity.NextStep);
+    }
+
     private new void Awake()
     {
         base.Awake();
-        _Gun = weaponObject.GetComponent<MeshRenderer>();
-        _Gun.enabled = false;
+        _ent = GetComponent<NewEntity>();
 
-        _fsm = new FiniteStateMachine(_enemyIdle, StartCoroutine);
-        _state = new GState();
-        //Idle
-        _fsm.AddTransition(StateTransitions.ToPursuit, _enemyIdle, _enemyMovement);
-        _fsm.AddTransition(StateTransitions.ToAOA, _enemyIdle, _enemyAttackAOA);
-        _fsm.AddTransition(StateTransitions.ToAttack, _enemyIdle, _enemyAttackWeapon);
-        _fsm.AddTransition(StateTransitions.ToGetWeapon, _enemyIdle, _enemyMovement);
-        _fsm.AddTransition(StateTransitions.ToRest, _enemyIdle, _enemyRest);
-        _fsm.AddTransition(StateTransitions.ToAproach, _enemyIdle, _enemyAproach);
-        
-        //Move
-        _fsm.AddTransition(StateTransitions.ToIdle, _enemyMovement, _enemyIdle);
-        //GetWeapon
-        _fsm.AddTransition(StateTransitions.ToIdle, _enemyGetWeapon, _enemyIdle);
+        var any = new State<ActionEntity>("any");
 
-        //AttackAOA
-        _fsm.AddTransition(StateTransitions.ToIdle, _enemyAttackAOA, _enemyIdle);
-        _fsm.AddTransition(StateTransitions.ToPursuit, _enemyAttackAOA, _enemyMovement);
-        //AttackWeapon
-        _fsm.AddTransition(StateTransitions.ToIdle, _enemyAttackWeapon, _enemyIdle);
-        //_fsm.AddTransition(StateTransitions.ToAttack, _enemyAttackWeapon, _enemyAttackWeapon);
+        var idle = new State<ActionEntity>("idle");
+        var bridgeStep = new State<ActionEntity>("planStep");
+        var failStep = new State<ActionEntity>("failStep");
+        var kill = new State<ActionEntity>("kill");
+        var pickup = new State<ActionEntity>("pickup");
+        var open = new State<ActionEntity>("open");
+        var success = new State<ActionEntity>("success");
 
-        //Rest
-        _fsm.AddTransition(StateTransitions.ToIdle, _enemyRest, _enemyIdle);
-        _fsm.AddTransition(StateTransitions.ToPursuit, _enemyRest, _enemyMovement);
+        kill.OnEnter += a => {
+            _ent.GoTo(_target.transform.position);
+            _ent.OnHitItem += PerformAttack;
+        };
 
-        //Aproach
-        //_fsm.AddTransition(StateTransitions.ToIdle, _enemyAproach, _enemyIdle);
-        _fsm.AddTransition(StateTransitions.ToAttack, _enemyAproach, _enemyAttackWeapon);
+        kill.OnExit += a => _ent.OnHitItem -= PerformAttack;
 
+        failStep.OnEnter += a => { _ent.Stop(); Debug.Log("Plan failed"); };
 
+        pickup.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformPickUp; };
+        pickup.OnExit += a => _ent.OnHitItem -= PerformPickUp;
 
-        _fsm.Active= true;
+        open.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformOpen; };
+        open.OnExit += a => _ent.OnHitItem -= PerformOpen;
+
+        bridgeStep.OnEnter += a => {
+            var step = _plan.FirstOrDefault();
+            if (step != null)
+            {
+
+                _plan = _plan.Skip(1);
+                var oldTarget = _target;
+                _target = step.Item2;
+                if (!_fsm.Feed(step.Item1))
+                    _target = oldTarget;
+            }
+            else
+            {
+                _fsm.Feed(ActionEntity.Success);
+            }
+        };
+
+        success.OnEnter += a => { Debug.Log("Success"); };
+        success.OnUpdate += () => { _ent.Jump(); };
+
+        StateConfigurer.Create(any)
+            .SetTransition(ActionEntity.NextStep, bridgeStep)
+            .SetTransition(ActionEntity.FailedStep, idle)
+            .Done();
+
+        StateConfigurer.Create(bridgeStep)
+            .SetTransition(ActionEntity.Kill, kill)
+            .SetTransition(ActionEntity.PickUp, pickup)
+            .SetTransition(ActionEntity.Open, open)
+            .SetTransition(ActionEntity.Success, success)
+            .Done();
+
+        _fsm = new EventFSM<ActionEntity>(idle, any);
     }
 
-
-    void Start()
+    public void ExecutePlan(List<Tuple<ActionEntity, Item>> plan)
     {
-        
-        // **Estado inicial**
-       
-        // **Definir acciones**
-
-        // Definir acciones
-        //planngoap();
-        PlanAndExecute();
-
-
+        _plan = plan;
+        _fsm.Feed(ActionEntity.NextStep);
     }
-
 
     private void Update()
     {
+        //Never forget
         _fsm.Update();
-
-
     }
 
-   
+    #region
+    //public GState _state;
+    //private List<GAction> actions = new List<GAction>();
+    //private Queue<GAction> actionQueue;
+    //private GPlanner planner = new GPlanner();
+
+    //[SerializeField] private EnemyMovement _enemyMovement;
+    //[SerializeField] private EnemyIdle _enemyIdle;
+    //[SerializeField] private EnemyWeaponAttack _enemyAttackWeapon;
+    //[SerializeField] private EnemRest _enemyRest;
+
+    //public string _weapon = "none";
+    //public float _distanceToPlayer = 5f;
+    //public float _viewRadius = 5f;
+    //public float _closeView = 1.5f;
+    //MeshRenderer _Gun;
+    //[SerializeField] private GameObject weaponObject;
+    //private new void Awake()
+    //{
+    //    base.Awake();
+    //    _Gun = weaponObject.GetComponent<MeshRenderer>();
+    //    _Gun.enabled = false;
+
+    //    _fsm = new FiniteStateMachine(_enemyIdle, StartCoroutine);
+    //    _state = new GState();
+    //    //Idle
+    //    _fsm.AddTransition(StateTransitions.ToPursuit, _enemyIdle, _enemyMovement);
+    //    _fsm.AddTransition(StateTransitions.ToAttack, _enemyIdle, _enemyAttackWeapon);
+    //    _fsm.AddTransition(StateTransitions.ToGetWeapon, _enemyIdle, _enemyMovement);
+    //    _fsm.AddTransition(StateTransitions.ToRest, _enemyIdle, _enemyRest);
+
+    //    //Move
+    //    _fsm.AddTransition(StateTransitions.ToIdle, _enemyMovement, _enemyIdle);
+
+    //    //AttackWeapon
+    //    _fsm.AddTransition(StateTransitions.ToIdle, _enemyAttackWeapon, _enemyIdle);
+    //    //_fsm.AddTransition(StateTransitions.ToAttack, _enemyAttackWeapon, _enemyAttackWeapon);
+
+    //    //Rest
+    //    _fsm.AddTransition(StateTransitions.ToIdle, _enemyRest, _enemyIdle);
+    //    _fsm.AddTransition(StateTransitions.ToPursuit, _enemyRest, _enemyMovement);
+
+
+
+
+    //    _fsm.Active= true;
+    //}
+
+
+    //void Start()
+    //{
+
+    //    // **Estado inicial**
+
+    //    // **Definir acciones**
+
+    //    // Definir acciones
+    //    //planngoap();
+    //    PlanAndExecute();
+
+
+    //}
+
+
+    //private void Update()
+    //{
+    //    _fsm.Update();
+
+
+    //}
+
+
+
     private void PlanAndExecute()
     {
         var initialState = new GState { worldState = new WorldState { playerHP = 30, distance = 10, hasWeapon = false, weapon = "none" } };
@@ -130,8 +264,8 @@ public class GAgent :  BaseEnemy
         //   to.state["isPlayerAlive"] = false;
 
         //  var planner = new GPlanner();
-          planner.OnPlanCompleted += OnPlanCompleted;
-          planner.OnCantPlan += OnCantPlan;
+          //planner.OnPlanCompleted += OnPlanCompleted;
+          //planner.OnCantPlan += OnCantPlan;
 
           //planner.Run(from, to, actions, StartCoroutine);
     }
@@ -166,12 +300,12 @@ public class GAgent :  BaseEnemy
     }
 
 
-    private void OnPlanCompleted(IEnumerable<GAction> plan)
-    {
-        _fsm = GPlanner.ConfigureFSM(plan, StartCoroutine);
-        _fsm.Active = true;
+    //private void OnPlanCompleted(IEnumerable<GAction> plan)
+    //{
+    //    _fsm = GPlanner.ConfigureFSM(plan, StartCoroutine);
+    //    _fsm.Active = true;
 
-    }
+    //}
 
  
 
@@ -182,7 +316,7 @@ public class GAgent :  BaseEnemy
 
 
     }
-
+    #endregion
     void OnDrawGizmos()
     {
         Gizmos.color = Color.white;

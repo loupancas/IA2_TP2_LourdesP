@@ -4,15 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using IA2;
-public enum ActionEntity
-{
-    Kill,
-    PickUp,
-    NextStep,
-    FailedStep,
-    Open,
-    Success
-}
+//public enum ActionEntity
+//{
+//    Kill,
+//    PickUp,
+//    NextStep,
+//    FailedStep,
+//    Open,
+//    Success
+//}
 
 public class Guy : MonoBehaviour
 {

@@ -147,7 +147,7 @@ public class GPlanner : MonoBehaviour
         {
 
             //hacer un debug for each de todas las acciones para ver si se pudo completar el plan
-            GetComponent<Guy>().ExecutePlan(
+            GetComponent<GAgent>().ExecutePlan(
                 plan
                 .Select(a =>
                 {
