@@ -8,7 +8,7 @@ public class GAction
 {
     public string Name { get; private set; }
     public float Cost { get; private set; }
-   
+    public ItemType item;
 
     public Dictionary<string, object> preconditions { get; private set; }
     public Dictionary<string, object> effects { get; private set; }
@@ -25,7 +25,7 @@ public class GAction
 
 
 
-    public GAction Costs(float cost)
+    public GAction SetCosts(float cost)
     {
         if (cost < 1f)
         {
@@ -56,11 +56,10 @@ public class GAction
         return this;
     }
 
-    public void ApplyEffect(GState state)
+    public GAction SetItem(ItemType type)
     {
-        foreach (var effect in effects)
-        {
-            state.Set(effect.Key, effect.Value);
-        }
+        item = type;
+        return this;
     }
+
 }
