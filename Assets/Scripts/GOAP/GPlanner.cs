@@ -47,7 +47,7 @@ public class GPlanner : MonoBehaviour
         var floorItems = items.Except(inventories);//devuelve una coleccion como la primera pero removiendo los que estan en la segunda
         var item = floorItems.FirstOrDefault(x => x.type == type);
         var here = transform.position;
-        state["accessible" + type.ToString()] = item != null && Navigation.instance;
+        state["accessible" + type.ToString()] = item != null && Navigation.instance.Reachable(here, item.transform.position, _debugRayList);
 
         var inv = inventories.Any(x => x.type == type);
         state["otherHas" + type.ToString()] = inv;
@@ -68,8 +68,7 @@ public class GPlanner : MonoBehaviour
 
         //Chequeo los booleanos para cada Item, generando mi modelo de mundo (mi diccionario de bools) en ObservedState
         Check(observedState, ItemType.Key);
-        Check(observedState, ItemType.Entity);
-        Check(observedState, ItemType.Prision);
+        Check(observedState, ItemType.NewEntity);
         Check(observedState, ItemType.Cuchillo);
         Check(observedState, ItemType.Door);
         //si no se usan objetos modulares se puede eliminar

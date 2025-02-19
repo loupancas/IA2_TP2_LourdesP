@@ -5,8 +5,7 @@ public enum ItemType
     Invalid,
     Key,
     Door,
-    Entity,
-    Prision,
+    NewEntity,
     Cuchillo,
     Espada,
 }
@@ -34,7 +33,10 @@ public class Item : MonoBehaviour
     private void Start()
     {
         _wp = Navigation.instance.NearestTo(transform.position);
-        _wp.nearbyItems.Add(this);
+        if (_wp != null)
+        {
+            _wp.nearbyItems.Add(this);
+        }
     }
 
     public void Kill()
@@ -57,9 +59,14 @@ public class Item : MonoBehaviour
     {
         if (!_insideInventory)
         {
-           _wp.nearbyItems.Remove(this);
-           _wp = Navigation.instance.NearestTo(transform.position);
-           _wp.nearbyItems.Add(this);
+           
+             _wp.nearbyItems.Remove(this);
+            
+             _wp = Navigation.instance.NearestTo(transform.position);
+          
+            
+            _wp.nearbyItems.Add(this);
+            
         }
     }
 }

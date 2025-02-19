@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System;
-using DG.Tweening.Core.Easing;
 
 public class Navigation : MonoBehaviour
 {

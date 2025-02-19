@@ -13,7 +13,7 @@ using IA2;
 //    Open,
 //    Success
 //}
-
+/*
 public class Guy : MonoBehaviour
 {
     private EventFSM<ActionEntity> _fsm;
@@ -145,3 +145,4 @@ public class Guy : MonoBehaviour
         _fsm.Update();
     }
 }
+*/

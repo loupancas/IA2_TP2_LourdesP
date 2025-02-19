@@ -34,7 +34,7 @@ public class GAgent :  BaseEnemy
         Debug.Log("PerformAttack", other.gameObject);
         if (other != _target) return;
 
-        var espada = _ent.items.FirstOrDefault(it => it.type == ItemType.Prision);
+        var espada = _ent.items.FirstOrDefault(it => it.type == ItemType.Espada);
         if (espada)
         {
             other.Kill();

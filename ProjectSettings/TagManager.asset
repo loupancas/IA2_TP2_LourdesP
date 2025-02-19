@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Boo
   - BossWeapon
+  - Door
+  - Floor
+  - Wall
   layers:
   - Default
   - TransparentFX
