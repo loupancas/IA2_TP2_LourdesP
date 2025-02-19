@@ -78,6 +78,7 @@ public class GAgent :  BaseEnemy
     private new void Awake()
     {
         base.Awake();
+
         _ent = GetComponent<NewEntity>();
 
         var any = new State<ActionEntity>("any");

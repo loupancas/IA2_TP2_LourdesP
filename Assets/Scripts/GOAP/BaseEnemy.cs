@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 public class BaseEnemy : MonoBehaviour
 {
     public int initialLife;
-    private int _actualLife;
+    protected int _actualLife;
     public int ActualLife => _actualLife;
     public int initialFatigue;
     protected int _actualFatigue;
@@ -31,7 +31,7 @@ public class BaseEnemy : MonoBehaviour
         _actualLife = initialLife;
     }
 
-  
+
 
     public void TakeDamage(int damage)
     {

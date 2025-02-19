@@ -43,7 +43,7 @@ public class EnemyUI : MonoBehaviour
 
     IEnumerator LifeCor()
     {
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.5f);
         _lifeBar = BaseEnemy.Instance;
         if (_lifeBar != null)
         {
@@ -61,7 +61,7 @@ public class EnemyUI : MonoBehaviour
 
     IEnumerator FatigueCor()
     {
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.5f);
         _fatigueBar = BaseEnemy.Instance;
         if (_fatigueBar != null)
         {

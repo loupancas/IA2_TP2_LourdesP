@@ -9,7 +9,7 @@ public class Navigation : MonoBehaviour
     public static Navigation instance;
     private List<Waypoint> _waypoints = new List<Waypoint>();
 
-    void Start()
+    void Awake()
     {
         instance = this;
 
