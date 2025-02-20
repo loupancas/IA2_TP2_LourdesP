@@ -2,14 +2,16 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using FSM;
+using System.Linq;
 
 
 public class GAction
 {
     public string Name { get; private set; }
     public float Cost { get; private set; }
-    public readonly Func<GState, bool> Preconditions;
-    public readonly Func<GState, GState> Effects;
+
+    public Func<GState, object > Preconditions;
+    public  Func<GState, GState> Effects;
     public ItemType item;
 
     public Dictionary<string, object> preconditions { get; private set; }
@@ -17,12 +19,21 @@ public class GAction
     public IState linkedState { get; private set; }
     //fsm o ienumerable
 
-    public GAction(string name, float cost, Func<GState, bool> pre, Func<GState, GState> eff)
+    //public GAction(string name, float cost, Func<GState, bool> pre, Func<GState, GState> eff)
+    //{
+    //    Name = name;
+    //    Cost = cost;
+    //    Preconditions = pre;
+    //    Effects =eff;
+    //}
+
+    public GAction(string name)
     {
         Name = name;
-        Cost = cost;
-        Preconditions = pre;
-        Effects =eff;
+        Cost = 1f;
+        Preconditions = Pre (name, true);
+
+        Effects = eff;
     }
 
 
@@ -46,9 +57,34 @@ public class GAction
         return this;
     }
 
+    public GAction Pre(string key, string value)
+    {
+        return Pre<string>(key, value);
+    }
+
+    public GAction Pre(string key, bool value)
+    {
+        return Pre<bool>(key, value);
+    }
+
+    public GAction Pre(string key, int value)
+    {
+        return Pre<int>(key, value);
+    }
+
+    public GAction Pre(string key, float value)
+    {
+        return Pre<float>(key, value);
+    }
+
     public GAction Effect<T>(string key, T value)
     {
         effects[key] = value;
+        return this;
+    }
+    public GAction Effect(Func<GState, GState> e)
+    {
+        Effects = e;
         return this;
     }
 

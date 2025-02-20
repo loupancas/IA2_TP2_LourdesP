@@ -8,8 +8,8 @@ public class Goap : MonoBehaviour
     //El satisfies y la heuristica ahora son Funciones externas
     public static IEnumerable<GAction> Execute(GState from, GState to, Func<GState, bool> satisfies, Func<GState, float> h, IEnumerable<GAction> actions)
     {
-        Debug.Log($"Estado inicial: {from.worldState}");
-        Debug.Log($"Estado objetivo: {to.worldState}");
+        //Debug.Log($"Estado inicial: {from.worldState}");
+        //Debug.Log($"Estado objetivo: {to.worldState}");
         int watchdog = 200;
 
         IEnumerable<GState> seq = AStarNormal<GState>.Run(

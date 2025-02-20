@@ -40,7 +40,7 @@ public class EnemigoVolador : EnemigoBase, IFreezed, IGridEntity
         // if (GameManager.instance.IsInGridState())
         // {
         _spatialGrid = FindObjectOfType<SpatialGrid>(); // Busca el componente en la escena
-        Debug.Log("_spatialGrid: " + _spatialGrid.name);
+        //Debug.Log("_spatialGrid: " + _spatialGrid.name);
         // }
     }
 

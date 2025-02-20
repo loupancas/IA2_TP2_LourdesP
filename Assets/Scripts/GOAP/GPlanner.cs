@@ -1,5 +1,4 @@
-﻿using FSM;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,31 +12,17 @@ public class GPlanner : MonoBehaviour
 
     private readonly List<Tuple<Vector3, Vector3>> _debugRayList = new List<Tuple<Vector3, Vector3>>();
 
- 
-
-    public static FiniteStateMachine ConfigureFSM(IEnumerable<GAction> plan, Func<IEnumerator, Coroutine> startCoroutine)
+    private void Start()
     {
-        var prevState = plan.First().linkedState;
-
-        var fsm = new FiniteStateMachine(prevState, startCoroutine);
-
-        foreach (var action in plan.Skip(1))
-        {
-            if (prevState == action.linkedState) continue;
-            fsm.AddTransition("On" + action.linkedState.Name, prevState, action.linkedState);
-
-            prevState = action.linkedState;
-        }
-
-        return fsm;
+        StartCoroutine(Plan());
     }
 
-  
+
 
     //private static float GetHeuristic(GState from, GState goal) => goal.state.Count(kv => !kv.In(from.state));
     //private static bool Satisfies(GState state, GState to) => to.state.All(kv => kv.In(state.state));
 
- 
+
 
     private void Check(Dictionary<string, bool> state, ItemType type)
     {
@@ -67,11 +52,11 @@ public class GPlanner : MonoBehaviour
         var everything = nav.AllItems().Union(nav.AllInventories());// .Union() une 2 colecciones sin agregar duplicados(eso incluye duplicados en la misma coleccion)
 
         //Chequeo los booleanos para cada Item, generando mi modelo de mundo (mi diccionario de bools) en ObservedState
-        Check(observedState, ItemType.Key);
-        Check(observedState, ItemType.NewEntity);
-        Check(observedState, ItemType.Cuchillo);
-        Check(observedState, ItemType.Espada);
-        Check(observedState, ItemType.Door);
+        //Check(observedState, ItemType.Key);
+        //Check(observedState, ItemType.NewEntity);
+        //Check(observedState, ItemType.Cuchillo);
+        //Check(observedState, ItemType.Espada);
+        //Check(observedState, ItemType.Door);
         //si no se usan objetos modulares se puede eliminar
 
 
@@ -81,6 +66,9 @@ public class GPlanner : MonoBehaviour
         {
             //estos valores se pueden pasar a mano pero deben coordinar con el estado del mundo actual , lo ideal es que se consigan el estados de todas las variables proceduralmente pero no es obligatorio
             playerHP = 88,
+            weapon = "none",
+            hasWeapon = false,
+            distance = 10,
             //values = new Dictionary<string, bool>()//eliminr 
         };
 
@@ -100,6 +88,14 @@ public class GPlanner : MonoBehaviour
 
         //esto es opcional no es necesario buscar un nodo que cumpla perfectamente las condiciones
         GState goal = new GState();
+        goal.worldState = new WorldState()
+        {
+            playerHP = 0,
+            weapon = "espada",
+            hasWeapon = true,
+            distance = 2,
+            //values = new Dictionary<string, bool>()
+        };
         //goal.values["has" + ItemType.Key.ToString()] = true;
         //goal.worldState.values["has" + ItemType.Cuchillo.ToString()] = true;
         //goal.values["has"+ ItemType.Mace.ToString()] = true;
@@ -171,34 +167,14 @@ public class GPlanner : MonoBehaviour
     {
         return new List<GAction>()
         {
-            //              new GAction("Kill",1f)
-            //                //.SetCost(1f)
-            //                .SetItem(ItemType.Entity) //si no uso items esto lo puedo quitar
-            //                //no usar mas de un pre con las lambdas (.Pre(x=>x)..Pre(x=>x).) se van a pisar
-            //                .Pre((gS)=>
-            //                {
-            //                    //Esto es un ejemplo exajerado, podriamos tener una convinacion, y en las precondiciones tener un diccionbario, como antes y aca chequear
-
-            //                    //agrego las precondiciones en base a las variables de gs.worldstate
-            //                    return gS.worldState.values.ContainsKey("dead"+ ItemType.Entity.ToString()) &&
-            //                           gS.worldState.values.ContainsKey("accessible"+ ItemType.Entity.ToString()) &&
-            //                           gS.worldState.values.ContainsKey("has"+ ItemType.Mace.ToString()) &&
-            //                           //!gS.worldState.values["dead"+ ItemType.Entity.ToString()] &&
-            //                           //gS.worldState.values["accessible"+ ItemType.Entity.ToString()] &&
-            //                           //gS.worldState.values["has"+ ItemType.Mace.ToString()] &&
-
-
-            //                           //lo pedido es completarlo de la siguiente manera sin depender del diccionario de values (excepto cuando se usen los items)
-            //                           gS.worldState.playerHP > 50;
-            //                })
-            //                //Ejemplo de setteo de Effect
-            //                .Effect((gS) =>
-            //                    {
-            //                        gS.worldState.values["dead"+ ItemType.Entity.ToString()] = true;
-            //                        gS.worldState.values["accessible"+ ItemType.Key.ToString()] = true;
-            //                        return gS;
-            //                    }
-            //                )
+                          new GAction("Kill",1f, s => s.worldState.playerHP < 50,
+                          s => { var ns = s.worldState.Clone(); ns.playerHP += 20; return new GState { worldState = ns }; })
+                           ,new GAction("Atacar", 3,
+                          s => s.worldState.weapon == "espada" && s.worldState.distance < 3,
+                          s => { var ns = s.worldState.Clone(); ns.playerHP -= 10; return new GState { worldState = ns }; })
+                             ,new GAction("Tomar Espada", 1,
+                          s => s.worldState.weapon == "none",
+                          s => { var ns = s.worldState.Clone(); ns.weapon = "espada"; return new GState { worldState = ns }; })
 
             //            , new GAction("Loot",1f)
             //                //.SetCost(1f)

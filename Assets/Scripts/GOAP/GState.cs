@@ -15,6 +15,8 @@ public class GState
         generatingAction = gen;
         worldState = new WorldState();
 
+
+
     }
 
     // Constructor para copia
@@ -68,6 +70,8 @@ public struct WorldState
     public float distance;
     public string weapon;
     public bool hasWeapon;
+
+    public object values { get; internal set; }
 
     //MUY IMPORTANTE TENER UN CLONE PARA NO TENER REFENCIAS A LO VIEJO
     public WorldState Clone()
