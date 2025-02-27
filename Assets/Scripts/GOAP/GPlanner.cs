@@ -65,10 +65,10 @@ public class GPlanner : MonoBehaviour
         initial.worldState = new WorldState()
         {
             //estos valores se pueden pasar a mano pero deben coordinar con el estado del mundo actual , lo ideal es que se consigan el estados de todas las variables proceduralmente pero no es obligatorio
-            playerHP = 88,
             weapon = "none",
-            hasWeapon = false,
+            hasKey = 0,
             distance = 10,
+            alive = true,
             //values = new Dictionary<string, bool>()//eliminr 
         };
 
@@ -90,9 +90,9 @@ public class GPlanner : MonoBehaviour
         GState goal = new GState();
         goal.worldState = new WorldState()
         {
-            playerHP = 0,
-            weapon = "espada",
-            hasWeapon = true,
+            hasKey = 0,
+            weapon = "none",
+            alive = true,
             distance = 2,
             //values = new Dictionary<string, bool>()
         };
@@ -108,7 +108,7 @@ public class GPlanner : MonoBehaviour
             string key = "has" + ItemType.Cuchillo.ToString();
             //if (!curr.worldState.values.ContainsKey(key) || !curr.worldState.values[key])
                 count++;
-            if (curr.worldState.playerHP <= 45)
+            if (curr.worldState.distance <= 45)
                 count++;
             return count;
         };
@@ -176,13 +176,56 @@ public class GPlanner : MonoBehaviour
                           //s => s.worldState.weapon == "none",
                           //s => { var ns = s.worldState.Clone(); ns.weapon = "espada"; return new GState { worldState = ns }; })
 
-                           new GAction("TomarCuchillo")
-                            .SetCosts(1f)
+                           new GAction("Pickup")
+                            .SetCosts(2f)
                             .SetItem(ItemType.Cuchillo)
                             .Pre("Weapon"+ ItemType.Cuchillo.ToString(), "noWeapon")
                             .Pre("accessible"+ ItemType.Cuchillo.ToString(), true)
 
                             .Effect("Weapon"+ ItemType.Cuchillo.ToString(), "Cuchillo")
+
+                            , new GAction("Pickup")
+                            .SetCosts(1f)
+                            .SetItem(ItemType.Espada)
+                            .Pre("Weapon"+ ItemType.Espada.ToString(), "noWeapon")
+                            .Pre("accessible"+ItemType.Espada.ToString(), true)
+                            .Effect("Weapon"+ ItemType.Espada.ToString(), "Espada")
+
+                            , new GAction("Kill")
+                            .SetCosts(20f)
+                            .SetItem(ItemType.NewEntity)
+                            .Pre("dead"+ ItemType.NewEntity.ToString(), false)
+                            .Effect("dead"+ ItemType.NewEntity.ToString(), true)
+
+                            , new GAction("Open")
+                            .SetCosts(3f)
+                            .SetItem(ItemType.Door)
+                            .Pre("dead"+ ItemType.Door.ToString(), true)
+                            .Pre("Key"+ ItemType.Key.ToString(), 1)
+                            .Pre("doorOpen"+ ItemType.Door, false)                          
+                            .Effect("doorOpen"+ItemType.Door, true)
+
+                            , new GAction("Pickup")
+                            .SetCosts(1f)
+                            .SetItem(ItemType.Key)
+                            .Pre("Key"+ ItemType.Key.ToString(), 0)
+                            .Pre("otherHasKey", true)
+                            .Pre("accessible"+ ItemType.Key.ToString(), true)                      
+                            .Effect("has"+ ItemType.Key.ToString(), 1)
+
+                            , new GAction("EspadaAttack")
+                            .SetCosts(10f)
+                            .Pre("dead"+ ItemType.NewEntity.ToString(), false)
+                            .Pre("Weapon"+ ItemType.Espada.ToString(), "Espada")
+                            .Pre("distancia"+ ItemType.NewEntity.ToString(), 3.5)                          
+                            .Effect("damage"+ ItemType.NewEntity.ToString(), 5.5)
+
+                              , new GAction("CuchilloAttack")
+                            .SetCosts(10f)
+                            .Pre("dead"+ ItemType.NewEntity.ToString(), false)
+                            .Pre("Weapon"+ ItemType.Espada.ToString(), "Cuchillo")
+                            .Pre("distancia"+ ItemType.NewEntity.ToString(), 2)
+                            .Effect("damage"+ ItemType.NewEntity.ToString(), 3)
 
                             // , new GAction("Pickup")
                             //.SetCosts(2f)

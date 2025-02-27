@@ -66,10 +66,10 @@ public class GState
 
 public struct WorldState
 {
-    public int playerHP;
+    public int hasKey;
     public float distance;
     public string weapon;
-    public bool hasWeapon;
+    public bool alive;
 
     public object values { get; internal set; }
 
@@ -78,10 +78,10 @@ public struct WorldState
     {
         return new WorldState()
         {
-            playerHP = this.playerHP,
+            hasKey = this.hasKey,
             distance = this.distance,
             weapon = this.weapon,
-            hasWeapon = this.hasWeapon
+            alive = this.alive
         };
     }
 }
