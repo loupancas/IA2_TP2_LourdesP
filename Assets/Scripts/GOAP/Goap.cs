@@ -27,9 +27,11 @@ public class Goap : MonoBehaviour
                 //en este Where se evaluan las precondiciones, al ser un diccionario de <string,bool> solo se chequea que todas las variables concuerdes
                 //En caso de ser un Func<...,bool> se utilizaria ese func de cada estado para saber si cumple o no
                 //return actions.Where(action => action.preconditions.All(kv => kv.In(curr.worldState.values)))//quitar este where si no se usan en diccionario
-                return actions.Where(a => a.Preconditions(curr)) // Agregue esto para chequear las precondiuciones puestas  en el Func, Al final deberia quedar solo esta
+                //return actions.Where(a => a.Preconditions(curr)) // Agregue esto para chequear las precondiuciones puestas  en el Func, Al final deberia quedar solo esta
                                                                  //dejar si se calculan las precondiciones con lambdas
-                              .Aggregate(new FList<AStarNormal<GState>.Arc>(), (possibleList, action) =>
+
+                 return actions.Where(action => action.preconditions.All(kv => kv.In((HashSet<KeyValuePair<string, object>>)curr.worldState.values)))
+                .Aggregate(new FList<AStarNormal<GState>.Arc>(), (possibleList, action) =>
                               {
                                   var newState = new GState(curr);
                                   newState = action.Effects(newState); // se aplican lso effectos del Func
@@ -39,6 +41,7 @@ public class Goap : MonoBehaviour
                                   return possibleList + new AStarNormal<GState>.Arc(newState, action.Cost);
                               });
             });
+
 
         if (seq == null)
         {
@@ -55,4 +58,34 @@ public class Goap : MonoBehaviour
 
         return seq.Skip(1).Select(x => x.generatingAction);
     }
+
+    //private static bool EvaluatePreconditions(Dictionary<string, object> preconditions, GState state)
+    //{
+    //    foreach (var kvp in preconditions)
+    //    {
+    //        if (!state.worldState.values.TryGetValue(kvp.Key, out var value))
+    //            return false;
+
+    //        switch (kvp.Value)
+    //        {
+    //            case bool boolValue when value is bool:
+    //                if ((bool)value != boolValue) return false;
+    //                break;
+    //            case string stringValue when value is string:
+    //                if ((string)value != stringValue) return false;
+    //                break;
+    //            case float floatValue when value is float:
+    //                if (Math.Abs((float)value - floatValue) > 0.0001f) return false;
+    //                break;
+    //            case int intValue when value is int:
+    //                if ((int)value != intValue) return false;
+    //                break;
+    //            default:
+    //                return false;
+    //        }
+    //    }
+    //    return true;
+    //}
+
+
 }

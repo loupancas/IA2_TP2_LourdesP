@@ -228,31 +228,31 @@ public class GAgent :  BaseEnemy
 
     private void PlanAndExecute()
     {
-        var initialState = new GState { worldState = new WorldState { playerHP = 30, distance = 10, hasWeapon = false, weapon = "none" } };
-        var goalState = new GState { worldState = new WorldState { playerHP = 0, distance = 0, hasWeapon = true, weapon = "espada" } };
-        var actions = new List<GAction>{
-                                    new GAction("Buscar jugador", 3,
-                                         s => s.worldState.distance > 0,
-                                         s => { var ns = s.worldState.Clone(); ns.distance -= 5; return new GState { worldState = ns }; }),
+        //var initialState = new GState { worldState = new WorldState { playerHP = 30, distance = 10, hasWeapon = false, weapon = "none" } };
+        //var goalState = new GState { worldState = new WorldState { playerHP = 0, distance = 0, hasWeapon = true, weapon = "espada" } };
+        //var actions = new List<GAction>{
+        //                            new GAction("Buscar jugador", 3,
+        //                                 s => s.worldState.distance > 0,
+        //                                 s => { var ns = s.worldState.Clone(); ns.distance -= 5; return new GState { worldState = ns }; }),
 
-                                    new GAction("Ataque con arma", 5,
-                                         s => s.worldState.weapon == "espada" && s.worldState.distance < 3,
-                                         s => { var ns = s.worldState.Clone(); ns.playerHP -= 10; return new GState { worldState = ns }; }),
-                                    new GAction("Obtener arma",1,
-                                    s => s.worldState.weapon == "none",
-                                    s => { var ns = s.worldState.Clone(); ns.weapon = "espada"; return new GState { worldState = ns }; }),
-                                    new GAction("Descansar", 15,
-                                        s => s.worldState.playerHP < 50,
-                                        s => { var ns = s.worldState.Clone(); ns.playerHP += 20; return new GState { worldState = ns }; }),
-                                          };
+        //                            new GAction("Ataque con arma", 5,
+        //                                 s => s.worldState.weapon == "espada" && s.worldState.distance < 3,
+        //                                 s => { var ns = s.worldState.Clone(); ns.playerHP -= 10; return new GState { worldState = ns }; }),
+        //                            new GAction("Obtener arma",1,
+        //                            s => s.worldState.weapon == "none",
+        //                            s => { var ns = s.worldState.Clone(); ns.weapon = "espada"; return new GState { worldState = ns }; }),
+        //                            new GAction("Descansar", 15,
+        //                                s => s.worldState.playerHP < 50,
+        //                                s => { var ns = s.worldState.Clone(); ns.playerHP += 20; return new GState { worldState = ns }; }),
+        //                                  };
 
 
-        var plan = Goap.Execute(initialState, goalState,
-            s => s.worldState.playerHP >= goalState.worldState.playerHP
-                 && s.worldState.distance <= goalState.worldState.distance
-                 && s.worldState.weapon == goalState.worldState.weapon,
-            s => Math.Abs(goalState.worldState.playerHP - s.worldState.playerHP) + Math.Abs(goalState.worldState.distance - s.worldState.distance),
-            actions);
+        //var plan = Goap.Execute(initialState, goalState,
+        //    s => s.worldState.playerHP >= goalState.worldState.playerHP
+        //         && s.worldState.distance <= goalState.worldState.distance
+        //         && s.worldState.weapon == goalState.worldState.weapon,
+        //    s => Math.Abs(goalState.worldState.playerHP - s.worldState.playerHP) + Math.Abs(goalState.worldState.distance - s.worldState.distance),
+        //    actions);
 
         //var from = new GState();
         //   from.state["isPlayerInSight"] = IsPlayerInSight();

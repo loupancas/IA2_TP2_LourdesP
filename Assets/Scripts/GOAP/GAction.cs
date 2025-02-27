@@ -10,7 +10,7 @@ public class GAction
     public string Name { get; private set; }
     public float Cost { get; private set; }
 
-    public Func<GState, object > Preconditions;
+    public Func<GState, Dictionary<string, object>> Preconditions;
     public  Func<GState, GState> Effects;
     public ItemType item;
 
@@ -30,10 +30,11 @@ public class GAction
     public GAction(string name)
     {
         Name = name;
-        Cost = 1f;
-        Preconditions = Pre (name, true);
-
-        Effects = eff;
+        Cost = SetCosts(1f).Cost;
+        preconditions = new Dictionary<string, object>();
+        effects = new Dictionary<string, object>();
+        Preconditions = state => preconditions;
+        Effects = state => state;
     }
 
 

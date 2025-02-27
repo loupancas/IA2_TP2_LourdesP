@@ -167,23 +167,43 @@ public class GPlanner : MonoBehaviour
     {
         return new List<GAction>()
         {
-                          new GAction("Kill",1f, s => s.worldState.playerHP < 50,
-                          s => { var ns = s.worldState.Clone(); ns.playerHP += 20; return new GState { worldState = ns }; })
-                           ,new GAction("Atacar", 3,
-                          s => s.worldState.weapon == "espada" && s.worldState.distance < 3,
-                          s => { var ns = s.worldState.Clone(); ns.playerHP -= 10; return new GState { worldState = ns }; })
-                             ,new GAction("Tomar Espada", 1,
-                          s => s.worldState.weapon == "none",
-                          s => { var ns = s.worldState.Clone(); ns.weapon = "espada"; return new GState { worldState = ns }; })
+                          //new GAction("Kill",1f, s => s.worldState.playerHP < 50,
+                          //s => { var ns = s.worldState.Clone(); ns.playerHP += 20; return new GState { worldState = ns }; })
+                          // ,new GAction("Atacar", 3,
+                          //s => s.worldState.weapon == "espada" && s.worldState.distance < 3,
+                          //s => { var ns = s.worldState.Clone(); ns.playerHP -= 10; return new GState { worldState = ns }; })
+                          //   ,new GAction("Tomar Espada", 1,
+                          //s => s.worldState.weapon == "none",
+                          //s => { var ns = s.worldState.Clone(); ns.weapon = "espada"; return new GState { worldState = ns }; })
 
-            //            , new GAction("Loot",1f)
-            //                //.SetCost(1f)
-            //                .SetItem(ItemType.Key)
-            //                .Pre("otherHas"+ ItemType.Key.ToString(), true)
-            //                .Pre("dead"+ ItemType.Entity.ToString(), true)
+                           new GAction("TomarCuchillo")
+                            .SetCosts(1f)
+                            .SetItem(ItemType.Cuchillo)
+                            .Pre("Weapon"+ ItemType.Cuchillo.ToString(), "noWeapon")
+                            .Pre("accessible"+ ItemType.Cuchillo.ToString(), true)
 
-            //                .Effect("accessible"+ ItemType.Key.ToString(), true)
-            //                .Effect("otherHas"+ ItemType.Key.ToString(), false)
+                            .Effect("Weapon"+ ItemType.Cuchillo.ToString(), "Cuchillo")
+
+                            // , new GAction("Pickup")
+                            //.SetCosts(2f)
+                            //.SetItem(ItemType.Key)
+                            //.Pre("Key", false)
+                            //.Pre("otherHasKey", true)
+                            //.Pre("accessible"+ ItemType.Key.ToString(), false)
+
+                            //.Effect("accessible"+ ItemType.Key.ToString(), true)
+                            //.Effect("has"+ ItemType.Key.ToString(), true)
+                            
+                            //, new GAction("Kill")
+                            //.SetCosts(20f)
+                            //.SetItem(ItemType.NewEntity)
+                            //.Pre("dead"+ ItemType.NewEntity.ToString(), false)
+
+                            //.Effect("dead"+ ItemType.NewEntity.ToString(), true)
+                         
+                            //,new GAction("Open")
+                            //.SetCosts(3f)
+                            //.SetItem(ItemType.Door)
 
             //            , new GAction("Pickup",2f)
             //                //.SetCost(2f)
