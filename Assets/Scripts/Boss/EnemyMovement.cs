@@ -18,7 +18,7 @@ public class EnemyMovement : MonoBaseState
     public float maxFrameTime = 0.016f; // Tiempo máximo por frame (60 FPS), ajustable desde el Inspector
     private bool isChasing = false;
     private Coroutine _pathfindingCoroutine;
-    private GAgent _gAgent;
+    private Guy guy;
     bool _stateFinished;
     void Start()
     {
@@ -149,7 +149,7 @@ public class EnemyMovement : MonoBaseState
     {
         Debug.Log("EnemyMovement");
         base.Enter(from, transitionParameters);
-        _gAgent = GetComponent<GAgent>();
+        guy = GetComponent<Guy>();
 
     }
 

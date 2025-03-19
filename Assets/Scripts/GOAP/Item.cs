@@ -5,9 +5,10 @@ public enum ItemType
     Invalid,
     Key,
     Door,
-    NewEntity,
-    Cuchillo,
-    Espada,
+    Entity,
+    Mace,
+    Money,
+    PastaFrola,
 }
 
 public class Item : MonoBehaviour
@@ -41,13 +42,13 @@ public class Item : MonoBehaviour
 
     public void Kill()
     {
-        var ent = GetComponent<NewEntity>();
-        if (ent != null)
-        {
-            foreach (var it in ent.RemoveAllitems())
-                it.transform.parent = null;
-        }
-        Destroy(gameObject);
+        //var ent = GetComponent<NewEntity>();
+        //if (ent != null)
+        //{
+        //    foreach (var it in ent.RemoveAllitems())
+        //        it.transform.parent = null;
+        //}
+        //Destroy(gameObject);
     }
 
     private void OnDestroy()

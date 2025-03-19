@@ -6,7 +6,7 @@ using System;
 using Random = UnityEngine.Random;
 
 
-public class NewEntity : MonoBehaviour
+public class Entidad : MonoBehaviour
 {
     #region VARIABLES
     public TextMesh lblNumber, lblId;
@@ -14,20 +14,20 @@ public class NewEntity : MonoBehaviour
     public string initialId;
     public Color initialColor;
 
-    public event Action<NewEntity> OnHitFloor = delegate { };
-    public event Action<NewEntity, Transform> OnHitWall = delegate { };
-    public event Action<NewEntity, Item> OnHitItem = delegate { };
-    public event Action<NewEntity, Waypoint, bool> OnReachDestination = delegate { };
+    public event Action<Entidad> OnHitFloor = delegate { };
+    public event Action<Entidad, Transform> OnHitWall = delegate { };
+    public event Action<Entidad, Item> OnHitItem = delegate { };
+    public event Action<Entidad, Waypoint, bool> OnReachDestination = delegate { };
 
     public List<Item> initialItems;
 
-    List<Item> _items;
+    public List<Item> _items = new List<Item>();
     Vector3 _vel;
     bool _onFloor;
     string _label;
     int _number;
     Color _color;
-
+    string _alive;
     public float speed = 2f;
 
     Waypoint _gizmoRealTarget;
@@ -73,17 +73,34 @@ public class NewEntity : MonoBehaviour
             Paint(value);
         }
     }
+
+
+    public String alive
+    {
+        get { return _alive; }
+        set
+        {
+            _alive = value;
+
+        }
+    }
+
+
     #endregion
 
     #endregion
 
     void Awake()
     {
-        _items = new List<Item>();
+        if (_items == null)
+        {
+            _items = new List<Item>();
+        }
         _vel = Vector3.zero;
         _onFloor = false;
         label = initialId;
         number = 99;
+        _alive = "vivo";
     }
 
     void Start()
@@ -117,21 +134,45 @@ public class NewEntity : MonoBehaviour
             OnHitFloor(this);
         }
         else if (col.collider.tag == "Wall")
+        {
             OnHitWall(this, col.collider.transform);
+
+        }
+        //else if (col.collider.tag == "Door")
+        //{
+        //    var door = col.collider.GetComponent<Door>();
+        //    if (door.open == false)
+        //    {
+        //        door.Open();
+        //    }
+        //}
         else
         {
             var item = col.collider.GetComponentInParent<Item>();
             if (item && item.transform.parent != inventory)
                 OnHitItem(this, item);
         }
+
+
+
+        if (col.collider.tag == "Police")
+        {
+            Life();
+        }
     }
 
-    void OnTriggerEnter(Collider other)
+    public void Life()
     {
-        var e = other.GetComponent<NewEntity>();
+        alive = "muerto";
+    }
+
+    void OnTriggerEnter(UnityEngine.Collider other)
+    {
+        var e = other.GetComponent<Entidad>();
         if (e != null && e != this)
         {
             Debug.Log(e.name + " hit " + name);
+            ;
         }
     }
     #endregion
@@ -139,20 +180,43 @@ public class NewEntity : MonoBehaviour
     #region ITEM MANAGEMENT
     public void AddItem(Item item)
     {
+
+
         _items.Add(item);
+        Debug.Log($"Item {item.name} added to {gameObject.name}'s inventory.");
+
         item.OnInventoryAdd();
         item.transform.parent = inventory;
+
         RefreshItemPositions();
     }
 
     public Item Removeitem(Item item)
     {
+
         _items.Remove(item);
         item.OnInventoryRemove();
         item.transform.parent = null;
         RefreshItemPositions();
         return item;
+
     }
+
+    public Item DropItem(Item item)
+    {
+        if (_items.Contains(item))
+        {
+            _items.Remove(item);
+            item.OnInventoryRemove();
+            item.transform.parent = null;
+            item.transform.position = transform.position + Vector3.up;
+            RefreshItemPositions();
+            return item;
+        }
+        return null;
+    }
+
+
 
     public IEnumerable<Item> RemoveAllitems()
     {

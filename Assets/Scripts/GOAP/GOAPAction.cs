@@ -4,6 +4,7 @@ using FSM;
 using UnityEngine;
 using U = Utility;
 using System.Linq;
+using static UnityEditor.Progress;
 public class GOAPAction
 {
     public string ActionName { get; set; }
@@ -15,7 +16,7 @@ public class GOAPAction
     public Func<GOAPState, GOAPState> Effects;
     public string name { get; private set; }
     public float cost { get; private set; }
-    public IState linkedState { get; private set; }
+    public ItemType item;
 
 
     public GOAPAction(string name)
@@ -74,7 +75,7 @@ public class GOAPAction
         };
     }
 
-    public GOAPAction Cost(float cost)
+    public GOAPAction SetCost(float cost)
     {
         if (cost < 1f)
         {
@@ -153,9 +154,9 @@ public class GOAPAction
     }
 
 
-    public GOAPAction SetItem(IState state)
+    public GOAPAction SetItem(ItemType type)
     {
-        linkedState = state;
+        item = type;
         return this;
     }
 

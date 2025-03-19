@@ -4,74 +4,163 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using IA2;
-//public enum ActionEntity
-//{
-//    Kill,
-//    PickUp,
-//    NextStep,
-//    FailedStep,
-//    Open,
-//    Success
-//}
-/*
+public enum ActionEntity
+{
+    PickUp,
+    PickUpM,
+    NextStep,
+    FailedStep,
+    Open,
+    Matar,
+    Loot,
+    Sobornar,
+    Breaking,
+    Success
+}
+
 public class Guy : MonoBehaviour
 {
     private EventFSM<ActionEntity> _fsm;
     private Item _target;
 
-    private NewEntity _ent;
-
+    private Entidad _ent;
+    private Entidad _police;
+    public int llave = 0;
+    Item _door;
     IEnumerable<Tuple<ActionEntity, Item>> _plan;
 
-    private void PerformAttack(NewEntity us, Item other)
+
+
+    private void PerformSobornar(Entidad us, Item other)
+    {
+
+        if (other != _target) return;
+        var money = _ent.items.FirstOrDefault(it => it.type == ItemType.Money);
+        var key = _police.items.FirstOrDefault(it => it.type == ItemType.Key);
+        if (money != null && key != null)
+        {
+            _police.DropItem(key);
+            _ent.DropItem(money);
+            _ent.AddItem(key);
+            _police.AddItem(money);
+            Debug.Log("Acepto dinero");
+            llave = 1;
+            _fsm.Feed(ActionEntity.NextStep);
+        }
+        else
+        {
+            _fsm.Feed(ActionEntity.FailedStep);
+            Debug.Log("PerformSobornar failed");
+        }
+    }
+
+
+    private void PerformAttack(Entidad us, Item other)
     {
         Debug.Log("PerformAttack", other.gameObject);
         if (other != _target) return;
 
-        var prision = _ent.items.FirstOrDefault(it => it.type == ItemType.Prision);
-        if (prision)
+        var mace = _ent.items.FirstOrDefault(it => it.type == ItemType.Mace);
+        if (mace)
         {
             other.Kill();
             if (other.type == ItemType.Door)
-                Destroy(_ent.Removeitem(prision).gameObject);
+                Destroy(_ent.Removeitem(mace).gameObject);
             _fsm.Feed(ActionEntity.NextStep);
         }
         else
             _fsm.Feed(ActionEntity.FailedStep);
+        Debug.Log("PerformAttack failed");
     }
 
-    private void PerformOpen(NewEntity us, Item other)
+    private void Matar(Entidad us, Item other)
     {
         if (other != _target) return;
-
-        var key = _ent.items.FirstOrDefault(it => it.type == ItemType.Key);
-        var door = other.GetComponent<Door>();
-        if (door && key)
+        var mace = _ent.items.FirstOrDefault(it => it.type == ItemType.Mace);
+        if (mace)
         {
-            door.Open();
-            Destroy(_ent.Removeitem(key).gameObject);
+            other.Kill();
+            Destroy(_ent.Removeitem(mace).gameObject);
+
             _fsm.Feed(ActionEntity.NextStep);
         }
         else
             _fsm.Feed(ActionEntity.FailedStep);
+        Debug.Log("Matar failed");
     }
 
-    private void PerformPickUp(NewEntity us, Item other)
+    private void PerformOpen(Entidad us, Item other)
+    {
+        Debug.Log("PerformOpen", other.gameObject);
+        other = _door;
+        if (other != _target) return;
+
+
+        var key = _ent.items.FirstOrDefault(it => it.type == ItemType.Key);
+        Door doorComponent = other.GetComponent<Door>();
+
+        if (key != null && doorComponent.open == false)
+        {
+
+            Debug.Log("Open" + other.gameObject);
+            doorComponent.Open();
+            Destroy(_ent.Removeitem(key).gameObject);
+            _fsm.Feed(ActionEntity.NextStep);
+
+        }
+        else
+        {
+            _fsm.Feed(ActionEntity.FailedStep);
+            Debug.Log("PerformOpen failed");
+
+        }
+
+        _fsm.Feed(ActionEntity.NextStep);
+
+    }
+
+    private void PerformPickUp(Entidad us, Item other)
     {
         if (other != _target) return;
 
         _ent.AddItem(other);
-        _fsm.Feed(ActionEntity.NextStep);
+        Debug.Log("PerformPickUp" + other.gameObject);
+
     }
 
-    private void NextStep(NewEntity ent, Waypoint wp, bool reached)
+    private void PerformPickUpM(Entidad us, Item other)
+    {
+        if (other != _target) return;
+
+        _ent.AddItem(other);
+        Debug.Log("PerformPickUpM" + other.gameObject);
+        _fsm.Feed(ActionEntity.NextStep);
+
+    }
+
+
+    private void PerformLoot(Entidad us, Item other)
+    {
+        if (other != _target) return;
+        if (_police.alive == "muerto")
+        {
+            _ent.AddItem(other);
+            _fsm.Feed(ActionEntity.NextStep);
+        }
+        else
+            _fsm.Feed(ActionEntity.FailedStep);
+    }
+
+    private void NextStep(Entidad ent, Waypoint wp, bool reached)
     {
         _fsm.Feed(ActionEntity.NextStep);
     }
 
     private void Awake()
     {
-        _ent = GetComponent<NewEntity>();
+        _ent = GetComponent<Entidad>();
+        _police = GameObject.Find("OtherDude").GetComponent<Entidad>();
+        _door = GameObject.Find("DoorLocked").GetComponent<Item>();
 
         var any = new State<ActionEntity>("any");
 
@@ -79,9 +168,17 @@ public class Guy : MonoBehaviour
         var bridgeStep = new State<ActionEntity>("planStep");
         var failStep = new State<ActionEntity>("failStep");
         var kill = new State<ActionEntity>("kill");
+        var breaking = new State<ActionEntity>("breaking");
         var pickup = new State<ActionEntity>("pickup");
+        var pickupm = new State<ActionEntity>("pickupM");
+        var loot = new State<ActionEntity>("loot");
+        var sobornar = new State<ActionEntity>("sobornar");
         var open = new State<ActionEntity>("open");
         var success = new State<ActionEntity>("success");
+        var matar = new State<ActionEntity>("matar");
+
+        matar.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += Matar; };
+        matar.OnExit += a => _ent.OnHitItem -= Matar;
 
         kill.OnEnter += a => {
             _ent.GoTo(_target.transform.position);
@@ -90,10 +187,22 @@ public class Guy : MonoBehaviour
 
         kill.OnExit += a => _ent.OnHitItem -= PerformAttack;
 
+        sobornar.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformSobornar; };
+        sobornar.OnExit += a => _ent.OnHitItem -= PerformSobornar;
+
+        breaking.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformAttack; };
+        breaking.OnExit += a => _ent.OnHitItem -= PerformAttack;
+
         failStep.OnEnter += a => { _ent.Stop(); Debug.Log("Plan failed"); };
+
+        loot.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformLoot; };
+        loot.OnExit += a => _ent.OnHitItem -= PerformLoot;
 
         pickup.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformPickUp; };
         pickup.OnExit += a => _ent.OnHitItem -= PerformPickUp;
+
+        pickupm.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformPickUpM; };
+        pickupm.OnExit += a => _ent.OnHitItem -= PerformPickUpM;
 
         open.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformOpen; };
         open.OnExit += a => _ent.OnHitItem -= PerformOpen;
@@ -124,10 +233,14 @@ public class Guy : MonoBehaviour
             .Done();
 
         StateConfigurer.Create(bridgeStep)
-            .SetTransition(ActionEntity.Kill, kill)
+            .SetTransition(ActionEntity.Breaking, breaking)
             .SetTransition(ActionEntity.PickUp, pickup)
+            .SetTransition(ActionEntity.PickUpM, pickupm)
             .SetTransition(ActionEntity.Open, open)
+            .SetTransition(ActionEntity.Sobornar, sobornar)
             .SetTransition(ActionEntity.Success, success)
+            .SetTransition(ActionEntity.Matar, matar)
+            .SetTransition(ActionEntity.Loot, loot)
             .Done();
 
         _fsm = new EventFSM<ActionEntity>(idle, any);
@@ -141,8 +254,6 @@ public class Guy : MonoBehaviour
 
     private void Update()
     {
-        //Never forget
         _fsm.Update();
     }
 }
-*/
