@@ -10,8 +10,8 @@ public class GAction
     public string Name { get; private set; }
     public float Cost { get; private set; }
 
-    public Func<GState, Dictionary<string, object>> Preconditions;
-    public  Func<GState, GState> Effects;
+    public Func<GOAPState, Dictionary<string, object>> Preconditions;
+    public  Func<GOAPState, GOAPState> Effects;
     public ItemType item;
 
     public Dictionary<string, object> preconditions { get; private set; }
@@ -83,7 +83,7 @@ public class GAction
         effects[key] = value;
         return this;
     }
-    public GAction Effect(Func<GState, GState> e)
+    public GAction Effect(Func<GOAPState, GOAPState> e)
     {
         Effects = e;
         return this;

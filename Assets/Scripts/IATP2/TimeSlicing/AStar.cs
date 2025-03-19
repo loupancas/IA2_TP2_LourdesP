@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
 
+//A ESTRELLA VISTO EN CLASE
 public class AStar<T>
 {
     public event Action<IEnumerable<T>> OnPathCompleted;
