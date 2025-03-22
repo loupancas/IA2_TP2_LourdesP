@@ -140,7 +140,8 @@ public class GOAPPlanner:MonoBehaviour
         #endregion
         var actions = CreatePossibleActionsList();
 
-        //var plan = Goap.Execute(initial, null, objectice, heuristc, actions);
+        var plan =GOAP.Execute(initial, null, objectice, heuristc, actions);
+
 
         if (plan == null)
             Debug.Log("Couldn't plan");
@@ -155,11 +156,11 @@ public class GOAPPlanner:MonoBehaviour
                 {
                     Item i2 = everything.FirstOrDefault(i => i.type == a.item);
                     Debug.Log(i2);
-                    if (actDict.ContainsKey(a.Name) && i2 != null)
+                    if (actDict.ContainsKey(a.name) && i2 != null)
                     {
-                        Debug.Log(a.Name);
+                        Debug.Log(a.name);
                         Debug.Log(i2.type);
-                        return Tuple.Create(actDict[a.Name], i2);
+                        return Tuple.Create(actDict[a.name], i2);
                     }
                     else
                     {
@@ -269,77 +270,5 @@ public class GOAPPlanner:MonoBehaviour
     }
 
 
-    public void Run(GOAPState from, GOAPState to, IEnumerable<GOAPAction> actions,
-                    Func<IEnumerator, Coroutine> startCoroutine)
-    {
-        _watchdog = _WATCHDOG_MAX;
-
-        var astar = new AStar<GOAPState>();
-        astar.OnPathCompleted += OnPathCompleted;
-        astar.OnCantCalculate += OnCantCalculate;
-
-        var astarEnumerator = astar.Run(from,
-                                        state => Satisfies(state, to),
-                                        node => Explode(node, actions, ref _watchdog),
-                                        state => GetHeuristic(state, to));
-
-        startCoroutine(astarEnumerator);
-    }
-
-    //public static FiniteStateMachine ConfigureFSM(IEnumerable<GOAPAction> plan, Func<IEnumerator, Coroutine> startCoroutine)
-    //{
-    //    var prevState = plan.First().linkedState;
-
-    //    var fsm = new FiniteStateMachine(prevState, startCoroutine);
-
-    //    foreach (var action in plan.Skip(1))
-    //    {
-    //        if (prevState == action.linkedState) continue;
-    //        fsm.AddTransition("On" + action.linkedState.Name, prevState, action.linkedState);
-
-    //        prevState = action.linkedState;
-    //    }
-
-    //    return fsm;
-    //}
-
-    private void OnPathCompleted(IEnumerable<GOAPState> sequence)
-    {
-        foreach (var act in sequence.Skip(1))
-        {
-            Debug.Log(act);
-        }
-
-        Debug.Log("WATCHDOG " + _watchdog);
-
-        var plan = sequence.Skip(1).Select(x => x.generatingAction);
-
-        OnPlanCompleted?.Invoke(plan);
-    }
-
-    private void OnCantCalculate()
-    {
-        OnCantPlan?.Invoke();
-    }
-
-    private static float GetHeuristic(GOAPState from, GOAPState goal) => goal.values.Count(kv => !kv.In(from.values));
-    private static bool Satisfies(GOAPState state, GOAPState to) => to.values.All(kv => kv.In(state.values));
-
-    private static IEnumerable<WeightedNode<GOAPState>> Explode(GOAPState node, IEnumerable<GOAPAction> actions,
-                                                                ref int watchdog)
-    {
-        if (watchdog == 0) return Enumerable.Empty<WeightedNode<GOAPState>>();
-        watchdog--;
-
-        return actions.Where(action => action.preconditions.All(kv => node.worldState.values.ContainsKey(kv.Key)))
-                      .Aggregate(new List<WeightedNode<GOAPState>>(), (possibleList, action) => {
-                          var newState = new GOAPState(node);
-                          //newState.values.UpdateWith(action.effects);
-                          newState.generatingAction = action;
-                          newState.step = node.step + 1;
-
-                          possibleList.Add(new WeightedNode<GOAPState>(newState, action.cost));
-                          return possibleList;
-                      });
-    }
+   
 }

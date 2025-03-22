@@ -159,7 +159,7 @@ public class Guy : MonoBehaviour
     private void Awake()
     {
         _ent = GetComponent<Entidad>();
-        _police = GameObject.Find("OtherDude").GetComponent<Entidad>();
+        _police = GameObject.Find("Police").GetComponent<Entidad>();
         _door = GameObject.Find("DoorLocked").GetComponent<Item>();
 
         var any = new State<ActionEntity>("any");

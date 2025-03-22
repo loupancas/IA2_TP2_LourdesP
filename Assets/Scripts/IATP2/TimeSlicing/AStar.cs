@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using UnityEngine;
 
 //A ESTRELLA VISTO EN CLASE
@@ -66,5 +67,88 @@ public class AStar<T>
         }
 
         OnCantCalculate?.Invoke();
+    }
+}
+
+
+
+
+public class  AEstrella<T> where T : class
+{
+
+    public class WeightedNode
+    {
+        public T Element { get; }
+        public float Weight { get; }
+
+        public WeightedNode(T element, float weight)
+        {
+            Element = element;
+            Weight = weight;
+        }
+    }
+    public static IEnumerable<T> Go(
+        T from,
+        T to,
+        Func<T, T, float> h,                // Current, Goal -> Heuristic cost
+        Func<T, bool> satisfies,            // Current -> Satisfies
+        Func<T, IEnumerable<WeightedNode>> expand // Current -> (Endpoint, Cost)[]
+    )
+    {
+        var open = new List<T> { from };
+        var closed = new HashSet<T>();
+        var gs = new Dictionary<T, float> { [from] = 0 };
+        var fs = new Dictionary<T, float> { [from] = h(from, to) };
+        var previous = new Dictionary<T, T>();
+
+        while (open.Count > 0)
+        {
+            var candidate = open.OrderBy(x => fs[x]).First();
+            if (satisfies(candidate))
+            {
+                return GeneratePath(candidate, previous);
+            }
+
+            open.Remove(candidate);
+            closed.Add(candidate);
+
+            var neighbors = expand(candidate);
+            if (neighbors == null || !neighbors.Any())
+                continue;
+
+            var gCandidate = gs[candidate];
+
+            foreach (var neighbor in neighbors)
+            {
+                if (closed.Contains(neighbor.Element))
+                    continue;
+
+                var gNeighbor = gCandidate + neighbor.Weight;
+                if (!open.Contains(neighbor.Element))
+                {
+                    open.Add(neighbor.Element);
+                }
+
+                if (gNeighbor >= gs.GetValueOrDefault(neighbor.Element, float.MaxValue))
+                    continue;
+
+                previous[neighbor.Element] = candidate;
+                gs[neighbor.Element] = gNeighbor;
+                fs[neighbor.Element] = gNeighbor + h(neighbor.Element, to);
+            }
+        }
+
+        return null;
+
+    }
+    private static IEnumerable<T> GeneratePath(T current, Dictionary<T, T> previous)
+    {
+        var path = new Stack<T>();
+        while (current != null)
+        {
+            path.Push(current);
+            previous.TryGetValue(current, out current);
+        }
+        return path;
     }
 }

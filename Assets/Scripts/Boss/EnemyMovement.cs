@@ -8,7 +8,8 @@ using static UnityEngine.UI.GridLayoutGroup;
 
 public class EnemyMovement : MonoBaseState
 {
-    private AStar<Node> _aStar;
+    //private AStar<Node> _aStar;
+    private AEstrella<Node> _aStar;
     private List<Node> _path;
     private int _currentPathIndex;
     public float speed = 3f;
@@ -22,10 +23,10 @@ public class EnemyMovement : MonoBaseState
     bool _stateFinished;
     void Start()
     {
-        _aStar = new AStar<Node>();
-        _aStar.OnPathCompleted += GetPath;
-        _aStar.OnCantCalculate += PathNotFound;
-        _aStar.maxFrameTime = maxFrameTime; // Ajuste del tiempo máximo por frame
+        _aStar = new AEstrella<Node>();
+        //_aStar.OnPathCompleted += GetPath;
+        //_aStar.OnCantCalculate += PathNotFound;
+        //_aStar.maxFrameTime = maxFrameTime; // Ajuste del tiempo máximo por frame
         StartCoroutine(UpdatePathRoutine());
     }
 
@@ -43,7 +44,7 @@ public class EnemyMovement : MonoBaseState
                 {
                     StopCoroutine(_pathfindingCoroutine);
                 }
-                _pathfindingCoroutine = StartCoroutine(_aStar.Run(startNode, node => node == endNode, Explode, GetHeuristic));
+                _pathfindingCoroutine = StartCoroutine((IEnumerator)AEstrella<Node>.Go(startNode, endNode, GetHeuristic, node => node == endNode, Explode));
             }
             else
             {
@@ -74,14 +75,14 @@ public class EnemyMovement : MonoBaseState
         return closestNode;
     }
 
-    private IEnumerable<WeightedNode<Node>> Explode(Node node)
+    private IEnumerable<AEstrella<Node>.WeightedNode> Explode(Node node)
     {
-        return node.neighbour.Select(neighbour => new WeightedNode<Node>(neighbour, 1));
+        return node.neighbour.Select(neighbour => new AEstrella<Node>.WeightedNode(neighbour, 1));
     }
 
-    private float GetHeuristic(Node node)
+    private float GetHeuristic(Node node, Node goal)
     {
-        return Vector3.Distance(node.transform.position, player.position);
+        return Vector3.Distance(node.transform.position, goal.transform.position);
     }
 
     private void GetPath(IEnumerable<Node> path)

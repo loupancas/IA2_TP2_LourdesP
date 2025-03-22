@@ -80,7 +80,7 @@ public class GameManager : MonoBehaviour
     public void ChangeState(GameState newState)
     {
         currentState = newState;
-        Debug.Log("Estado cambiado a: " + currentState);
+        //Debug.Log("Estado cambiado a: " + currentState);
     }
 
     public GameState GetCurrentState()
