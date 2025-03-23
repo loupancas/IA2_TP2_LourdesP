@@ -28,8 +28,8 @@ public class Entidad : MonoBehaviour
     int _number;
     Color _color;
     string _alive;
-    public float speed = 2f;
-
+    public float speed = 10f;
+    Transform _transformPosition;
     Waypoint _gizmoRealTarget;
     IEnumerable<Waypoint> _gizmoPath;
 
@@ -101,6 +101,7 @@ public class Entidad : MonoBehaviour
         label = initialId;
         number = 99;
         _alive = "vivo";
+        _transformPosition = GetComponent<Transform>();
     }
 
     void Start()
@@ -253,6 +254,8 @@ public class Entidad : MonoBehaviour
     Coroutine _navCR;
     public void GoTo(Vector3 destination)
     {
+        Debug.Log("GoTo" + destination);
+
         _navCR = StartCoroutine(Navigate(destination));
     }
 
@@ -265,14 +268,16 @@ public class Entidad : MonoBehaviour
     protected virtual IEnumerator Navigate(Vector3 destination)
     {
         var srcWp = Navigation.instance.NearestTo(transform.position);
+        Debug.Log("srcWp" + srcWp);
         var dstWp = Navigation.instance.NearestTo(destination);
+        Debug.Log("dstWp" + dstWp);
 
         _gizmoRealTarget = dstWp;
         Waypoint reachedDst = srcWp;
 
         if (srcWp != dstWp)
         {
-            var path = _gizmoPath = AStarNormal<Waypoint>.Run(
+            var path = _gizmoPath = AEstrella<Waypoint>.Go(
                   srcWp
                 , dstWp
                 , (wa, wb) => Vector3.Distance(wa.transform.position, wb.transform.position)
@@ -283,7 +288,7 @@ public class Entidad : MonoBehaviour
                     //:
                     w.adyacent
                     //.Where(a => a.nearbyItems.All(it => it.type != ItemType.Door))
-                    .Select(a => new AStarNormal<Waypoint>.Arc(a, Vector3.Distance(a.transform.position, w.transform.position)))
+                    .Select(a => new AEstrella<Waypoint>.WeightedNode(a, Vector3.Distance(a.transform.position, w.transform.position)))
             );
             if (path != null)
             {

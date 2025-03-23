@@ -30,7 +30,7 @@ public class Navigation : MonoBehaviour
 
         if (srcWp != dstWp)
         {
-            var path = AStarNormal<Waypoint>.Run(
+            var path = AEstrella<Waypoint>.Go(
                   srcWp
                 , dstWp
                 , (wa, wb) => Vector3.Distance(wa.transform.position, wb.transform.position)
@@ -38,7 +38,7 @@ public class Navigation : MonoBehaviour
                 , w =>
                     w.adyacent
                         .Where(a => a.nearbyItems.All(it => it.type != ItemType.Door))
-                        .Select(a => new AStarNormal<Waypoint>.Arc(a, Vector3.Distance(a.transform.position, w.transform.position)))
+                        .Select(a => new AEstrella<Waypoint>.WeightedNode(a, Vector3.Distance(a.transform.position, w.transform.position)))
             );
             if (path == null)
                 return false;

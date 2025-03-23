@@ -12,13 +12,11 @@ public class GOAPPlanner:MonoBehaviour
     public event Action<IEnumerable<GOAPAction>> OnPlanCompleted;
     public event Action OnCantPlan;
 
-    private const int _WATCHDOG_MAX = 200;
 
-    private int _watchdog;
 
     private void Start()
     {
-        StartCoroutine(Plan());
+        //StartCoroutine(Plan());
     }
 
     private void Check(Dictionary<string, object> state, ItemType type)
@@ -45,9 +43,9 @@ public class GOAPPlanner:MonoBehaviour
 
     }
 
-    private IEnumerator Plan()
+    public IEnumerator Plan()
     {
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(0.1f);
 
         var observedState = new Dictionary<string, object>();
 

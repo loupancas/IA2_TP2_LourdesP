@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
+using U=Utility;
 
 //A ESTRELLA VISTO EN CLASE
 public class AStar<T>
@@ -95,51 +96,71 @@ public class  AEstrella<T> where T : class
         Func<T, IEnumerable<WeightedNode>> expand // Current -> (Endpoint, Cost)[]
     )
     {
-        var open = new List<T> { from };
-        var closed = new HashSet<T>();
-        var gs = new Dictionary<T, float> { [from] = 0 };
-        var fs = new Dictionary<T, float> { [from] = h(from, to) };
-        var previous = new Dictionary<T, T>();
+        var initialState = new AStarState<T>();
+        initialState.open.Add(from);
+        initialState.gs[from] = 0;
+        initialState.fs[from] = h(from, to);
+        initialState.previous[from] = null;
+        initialState.current = from;
+        var state = initialState;
+        //var open = new List<T> { from };
+        //var closed = new HashSet<T>();
+        //var gs = new Dictionary<T, float> { [from] = 0 };
+        //var fs = new Dictionary<T, float> { [from] = h(from, to) };
+        //var previous = new Dictionary<T, T>();
 
-        while (open.Count > 0)
+        while (state.open.Count > 0 && !state.finished)
         {
-            var candidate = open.OrderBy(x => fs[x]).First();
+            state = state.Clone();
+            var candidate = state.open.OrderBy(x => state.fs[x]).First();
+            state.current = candidate;
             if (satisfies(candidate))
             {
-                return GeneratePath(candidate, previous);
+                state.finished = true;
+                //return GeneratePath(candidate, previous);
             }
-
-            open.Remove(candidate);
-            closed.Add(candidate);
-
-            var neighbors = expand(candidate);
-            if (neighbors == null || !neighbors.Any())
-                continue;
-
-            var gCandidate = gs[candidate];
-
-            foreach (var neighbor in neighbors)
+            else
             {
-                if (closed.Contains(neighbor.Element))
+                state.open.Remove(candidate);
+                state.closed.Add(candidate);
+
+                var neighbors = expand(candidate);
+                if (neighbors == null || !neighbors.Any())
                     continue;
 
-                var gNeighbor = gCandidate + neighbor.Weight;
-                if (!open.Contains(neighbor.Element))
+                var gCandidate = state.gs[candidate];
+
+                foreach (var neighbor in neighbors)
                 {
-                    open.Add(neighbor.Element);
+                    if (state.closed.Contains(neighbor.Element))
+                        continue;
+
+                    var gNeighbor = gCandidate + neighbor.Weight;
+                    if (!state.open.Contains(neighbor.Element))
+                    {
+                        state.open.Add(neighbor.Element);
+                    }
+
+                    if (gNeighbor >= state.gs.GetValueOrDefault(neighbor.Element, float.MaxValue))
+                        continue;
+
+                    state.previous[neighbor.Element] = candidate;
+                    state.gs[neighbor.Element] = gNeighbor;
+                    state.fs[neighbor.Element] = gNeighbor + h(neighbor.Element, to);
                 }
 
-                if (gNeighbor >= gs.GetValueOrDefault(neighbor.Element, float.MaxValue))
-                    continue;
-
-                previous[neighbor.Element] = candidate;
-                gs[neighbor.Element] = gNeighbor;
-                fs[neighbor.Element] = gNeighbor + h(neighbor.Element, to);
             }
+
+          
         }
+        if (!state.finished)
+            return null;
+        var seq =
+          U.Generate(state.current, n => state.previous[n])
+          .TakeWhile(n => n != null)
+          .Reverse();
 
-        return null;
-
+        return seq;
     }
     private static IEnumerable<T> GeneratePath(T current, Dictionary<T, T> previous)
     {

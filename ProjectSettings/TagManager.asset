@@ -9,6 +9,7 @@ TagManager:
   - Door
   - Floor
   - Wall
+  - Police
   layers:
   - Default
   - TransparentFX

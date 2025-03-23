@@ -27,7 +27,8 @@ public class Item : MonoBehaviour
 
     public void OnInventoryRemove()
     {
-        gameObject.AddComponent<Rigidbody>();
+        if (gameObject.GetComponent<Rigidbody>() == null)
+            gameObject.AddComponent<Rigidbody>();
         _insideInventory = false;
     }
 

@@ -3,13 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
-using static UnityEngine.UI.GridLayoutGroup;
 
 public class EnemyMovement : MonoBaseState
 {
-    //private AStar<Node> _aStar;
-    private AEstrella<Node> _aStar;
+    private AStar<Node> _aStar;
+    //private AEstrella<Node> _aStar;
     private List<Node> _path;
     private int _currentPathIndex;
     public float speed = 3f;
@@ -23,10 +21,15 @@ public class EnemyMovement : MonoBaseState
     bool _stateFinished;
     void Start()
     {
-        _aStar = new AEstrella<Node>();
-        //_aStar.OnPathCompleted += GetPath;
-        //_aStar.OnCantCalculate += PathNotFound;
-        //_aStar.maxFrameTime = maxFrameTime; // Ajuste del tiempo máximo por frame
+       
+    }
+
+    public void Empezar()
+    {
+        _aStar = new AStar<Node>();
+        _aStar.OnPathCompleted += GetPath;
+        _aStar.OnCantCalculate += PathNotFound;
+        _aStar.maxFrameTime = maxFrameTime; // Ajuste del tiempo máximo por frame
         StartCoroutine(UpdatePathRoutine());
     }
 
@@ -169,75 +172,8 @@ public class EnemyMovement : MonoBaseState
 
         return this;
 
-
-        //// Ejemplo de condición para cambiar al estado de ataque AOA
-        //if (ShouldAOAAttack())
-        //{
-        //    return _gAgent.stateTransitions[StateTransitions.ToAOAAttack];
-        //}
-        //// Ejemplo de condición para cambiar al estado de ataque con arma
-        //else if (ShouldWeaponAttack())
-        //{
-        //    return _gAgent.stateTransitions[StateTransitions.ToWeaponAttack];
-        //}
-        //// Ejemplo de condición para cambiar al estado de descanso
-        //else if (ShouldRest())
-        //{
-        //    return _gAgent.stateTransitions[StateTransitions.ToRest];
-        //}
-        //// Ejemplo de condición para cambiar al estado de idle
-        //else if (ShouldIdle())
-        //{
-        //    return _gAgent.stateTransitions[StateTransitions.ToIdle];
-        //}
-
-        //// Si ninguna condición se cumple, permanece en el estado actual
-        //return this;
     }
 
 
-    //public void UpdateLoop()
-    //{
-    //    // Lógica de movimiento hacia el objetivo
-    //    MoveTowardsTarget();
-    //}
-
-    //private void MoveTowardsTarget()
-    //{
-    //    if (_target != null)
-    //    {
-    //        // Mueve al agente hacia el objetivo
-    //        _gAgent.transform.position = Vector3.MoveTowards(_gAgent.transform.position, _target.position, _gAgent.moveSpeed * Time.deltaTime);
-    //    }
-    //}
-
-    //private bool ShouldAOAAttack()
-    //{
-    //    // Define la lógica para determinar si el agente debe realizar un ataque AOA
-    //    return Vector3.Distance(_gAgent.transform.position, _target.position) < _gAgent.attackRange;
-    //}
-
-    //private bool ShouldWeaponAttack()
-    //{
-    //    // Define la lógica para determinar si el agente debe realizar un ataque con arma
-    //    return _gAgent.HasWeapon && Vector3.Distance(_gAgent.transform.position, _target.position) < _gAgent.weaponRange;
-    //}
-
-    //private bool ShouldRest()
-    //{
-    //    // Define la lógica para determinar si el agente debe descansar
-    //    return _gAgent.energyLevel < _gAgent.minEnergyLevel;
-    //}
-
-    //private bool ShouldIdle()
-    //{
-    //    // Define la lógica para determinar si el agente debe cambiar al estado idle
-    //    return Vector3.Distance(_gAgent.transform.position, _target.position) <= _gAgent.minDistanceToTarget;
-    //}
-
-   /* •	Enter: Inicializa el objetivo de movimiento(_target) cuando el estado se activa.
-•	Exit: Puede incluir lógica de limpieza o finalización cuando el estado se desactiva.
-•	ProcessInput: Evalúa las condiciones para cambiar a otros estados (ShouldAOAAttack, ShouldWeaponAttack, ShouldRest, ShouldIdle). Si se cumple alguna condición, retorna el nuevo estado correspondiente.
-•	UpdateLoop: Contiene la lógica de movimiento hacia el objetivo, utilizando MoveTowardsTarget.
-   */
+  
 }

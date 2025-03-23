@@ -22,7 +22,7 @@ public class Guy : MonoBehaviour
 {
     private EventFSM<ActionEntity> _fsm;
     private Item _target;
-
+    EnemyMovement _enemyMovement;
     private Entidad _ent;
     private Entidad _police;
     public int llave = 0;
@@ -121,9 +121,12 @@ public class Guy : MonoBehaviour
 
     private void PerformPickUp(Entidad us, Item other)
     {
+        Debug.Log("PerformPickUp", other.gameObject);
         if (other != _target) return;
 
         _ent.AddItem(other);
+
+        _enemyMovement.Empezar();
         Debug.Log("PerformPickUp" + other.gameObject);
 
     }
@@ -161,6 +164,7 @@ public class Guy : MonoBehaviour
         _ent = GetComponent<Entidad>();
         _police = GameObject.Find("Police").GetComponent<Entidad>();
         _door = GameObject.Find("DoorLocked").GetComponent<Item>();
+        _enemyMovement = GameObject.Find("BooBoss").GetComponent<EnemyMovement>();
 
         var any = new State<ActionEntity>("any");
 
@@ -177,7 +181,8 @@ public class Guy : MonoBehaviour
         var success = new State<ActionEntity>("success");
         var matar = new State<ActionEntity>("matar");
 
-        matar.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += Matar; };
+        matar.OnEnter += a => {
+            _ent.GoTo(_target.transform.position); _ent.OnHitItem += Matar; };
         matar.OnExit += a => _ent.OnHitItem -= Matar;
 
         kill.OnEnter += a => {
@@ -187,24 +192,30 @@ public class Guy : MonoBehaviour
 
         kill.OnExit += a => _ent.OnHitItem -= PerformAttack;
 
-        sobornar.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformSobornar; };
+        sobornar.OnEnter += a => {
+            _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformSobornar; }; 
         sobornar.OnExit += a => _ent.OnHitItem -= PerformSobornar;
 
-        breaking.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformAttack; };
+        breaking.OnEnter += a => {
+            _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformAttack; };
         breaking.OnExit += a => _ent.OnHitItem -= PerformAttack;
 
         failStep.OnEnter += a => { _ent.Stop(); Debug.Log("Plan failed"); };
 
-        loot.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformLoot; };
+        loot.OnEnter += a => {
+            _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformLoot; };
         loot.OnExit += a => _ent.OnHitItem -= PerformLoot;
 
-        pickup.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformPickUp; };
+        pickup.OnEnter += a => {
+            _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformPickUp; };
         pickup.OnExit += a => _ent.OnHitItem -= PerformPickUp;
 
-        pickupm.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformPickUpM; };
+        pickupm.OnEnter += a => {
+            _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformPickUpM; };
         pickupm.OnExit += a => _ent.OnHitItem -= PerformPickUpM;
 
-        open.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformOpen; };
+        open.OnEnter += a => {
+            _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformOpen; };
         open.OnExit += a => _ent.OnHitItem -= PerformOpen;
 
         bridgeStep.OnEnter += a => {
