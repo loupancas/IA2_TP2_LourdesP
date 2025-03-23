@@ -6,7 +6,7 @@ using System;
 using IA2;
 public enum ActionEntity
 {
-    PickUp,
+    Pickup,
     PickUpM,
     NextStep,
     FailedStep,
@@ -22,6 +22,7 @@ public class Guy : MonoBehaviour
 {
     private EventFSM<ActionEntity> _fsm;
     private Item _target;
+    private Item _pastafrola;
     EnemyMovement _enemyMovement;
     private Entidad _ent;
     private Entidad _police;
@@ -122,6 +123,8 @@ public class Guy : MonoBehaviour
     private void PerformPickUp(Entidad us, Item other)
     {
         Debug.Log("PerformPickUp called");
+        Debug.Log("PerformPickUp" + other.gameObject);
+        other=_pastafrola;
         if (other != _target) return;
 
         _ent.AddItem(other);
@@ -165,7 +168,7 @@ public class Guy : MonoBehaviour
         _police = GameObject.Find("Police").GetComponent<Entidad>();
         _door = GameObject.Find("DoorLocked").GetComponent<Item>();
         _enemyMovement = GameObject.Find("BooBoss").GetComponent<EnemyMovement>();
-
+        _pastafrola = GameObject.Find("PastaFrola").GetComponent<Item>();
         var any = new State<ActionEntity>("any");
 
         var idle = new State<ActionEntity>("idle");
@@ -207,7 +210,9 @@ public class Guy : MonoBehaviour
         loot.OnExit += a => _ent.OnHitItem -= PerformLoot;
 
         pickup.OnEnter += a => {
+            Debug.Log("entering pickup");
             _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformPickUp; };
+            Debug.Log("exit pickup");
         pickup.OnExit += a => _ent.OnHitItem -= PerformPickUp;
 
         pickupm.OnEnter += a => {
@@ -245,7 +250,7 @@ public class Guy : MonoBehaviour
 
         StateConfigurer.Create(bridgeStep)
             .SetTransition(ActionEntity.Breaking, breaking)
-            .SetTransition(ActionEntity.PickUp, pickup)
+            .SetTransition(ActionEntity.Pickup, pickup)
             .SetTransition(ActionEntity.PickUpM, pickupm)
             .SetTransition(ActionEntity.Open, open)
             .SetTransition(ActionEntity.Sobornar, sobornar)

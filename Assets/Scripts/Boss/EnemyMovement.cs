@@ -30,6 +30,7 @@ public class EnemyMovement : MonoBaseState
         _aStar.OnPathCompleted += GetPath;
         _aStar.OnCantCalculate += PathNotFound;
         _aStar.maxFrameTime = maxFrameTime; // Ajuste del tiempo máximo por frame
+        Debug.Log("Empezar");
         StartCoroutine(UpdatePathRoutine());
     }
 

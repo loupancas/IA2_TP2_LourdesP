@@ -127,7 +127,7 @@ public class GOAPPlanner:MonoBehaviour
         #region opcional
         var actDict = new Dictionary<string, ActionEntity>() {
 			  //{ "Kill"	, ActionEntity.Kill }
-			 { "Pickup", ActionEntity.PickUp }
+			 { "Pickup", ActionEntity.Pickup }
             , { "PickupM", ActionEntity.PickUpM }
             , { "Open"  , ActionEntity.Open }
             , { "Loot", ActionEntity.Loot }

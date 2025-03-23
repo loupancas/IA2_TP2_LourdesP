@@ -247,7 +247,7 @@ public class Entidad : MonoBehaviour
     Coroutine _navCR;
     public void GoTo(Vector3 destination)
     {
-        Debug.Log("GoTo" + destination);
+        //Debug.Log("GoTo" + destination);
 
         _navCR = StartCoroutine(Navigate(destination));
     }
@@ -261,9 +261,9 @@ public class Entidad : MonoBehaviour
     protected virtual IEnumerator Navigate(Vector3 destination)
     {
         var srcWp = Navigation.instance.NearestTo(transform.position);
-        Debug.Log("srcWp" + srcWp);
+        //Debug.Log("srcWp" + srcWp);
         var dstWp = Navigation.instance.NearestTo(destination);
-        Debug.Log("dstWp" + dstWp);
+        //Debug.Log("dstWp" + dstWp);
 
         _gizmoRealTarget = dstWp;
         Waypoint reachedDst = srcWp;
