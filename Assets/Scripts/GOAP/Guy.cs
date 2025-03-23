@@ -115,13 +115,13 @@ public class Guy : MonoBehaviour
 
         }
 
-        _fsm.Feed(ActionEntity.NextStep);
+        //_fsm.Feed(ActionEntity.NextStep);
 
     }
 
     private void PerformPickUp(Entidad us, Item other)
     {
-        Debug.Log("PerformPickUp", other.gameObject);
+        Debug.Log("PerformPickUp called");
         if (other != _target) return;
 
         _ent.AddItem(other);

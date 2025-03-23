@@ -16,6 +16,7 @@ public class Item : MonoBehaviour
     public ItemType type;
     private Waypoint _wp;
     private bool _insideInventory;
+    private bool _onFloor;
 
     public void OnInventoryAdd()
     {
@@ -43,13 +44,13 @@ public class Item : MonoBehaviour
 
     public void Kill()
     {
-        //var ent = GetComponent<NewEntity>();
-        //if (ent != null)
-        //{
-        //    foreach (var it in ent.RemoveAllitems())
-        //        it.transform.parent = null;
-        //}
-        //Destroy(gameObject);
+        var ent = GetComponent<Entidad>();
+        if (ent != null)
+        {
+            foreach (var it in ent.RemoveAllitems())
+                it.transform.parent = null;
+        }
+        Destroy(gameObject);
     }
 
     private void OnDestroy()
@@ -68,7 +69,9 @@ public class Item : MonoBehaviour
           
             
             _wp.nearbyItems.Add(this);
-            
+
+            _onFloor = true;
+
         }
     }
 }

@@ -26,6 +26,7 @@ public class GOAPPlanner:MonoBehaviour
         var inventories = Navigation.instance.AllInventories();
         var floorItems = items.Except(inventories);//devuelve una coleccion como la primera pero removiendo los que estan en la segunda
         var item = floorItems.FirstOrDefault(x => x.type == type);
+
         var here = transform.position;
         state["accessible" + type.ToString()] = item != null && Navigation.instance.Reachable(here, item.transform.position, _debugRayList);
 

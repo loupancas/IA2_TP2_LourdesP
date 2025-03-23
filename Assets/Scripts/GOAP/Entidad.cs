@@ -139,19 +139,12 @@ public class Entidad : MonoBehaviour
             OnHitWall(this, col.collider.transform);
 
         }
-        //else if (col.collider.tag == "Door")
-        //{
-        //    var door = col.collider.GetComponent<Door>();
-        //    if (door.open == false)
-        //    {
-        //        door.Open();
-        //    }
-        //}
         else
         {
             var item = col.collider.GetComponentInParent<Item>();
             if (item && item.transform.parent != inventory)
-                OnHitItem(this, item);
+                Debug.Log("ItemHit" + item);
+            OnHitItem(this, item);
         }
 
 
