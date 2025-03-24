@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class EnemyMovement : MonoBaseState
+public class EnemyMovement : MonoBehaviour
 {
     private AStar<Node> _aStar;
     //private AEstrella<Node> _aStar;
@@ -17,8 +17,6 @@ public class EnemyMovement : MonoBaseState
     public float maxFrameTime = 0.016f; // Tiempo máximo por frame (60 FPS), ajustable desde el Inspector
     private bool isChasing = false;
     private Coroutine _pathfindingCoroutine;
-    private Guy guy;
-    bool _stateFinished;
     void Start()
     {
         _aStar = new AStar<Node>();
@@ -44,7 +42,9 @@ public class EnemyMovement : MonoBaseState
             {
                 isChasing = true;
                 Node startNode = FindClosestNode(transform.position);
+                Debug.Log("startNode"+startNode.name);
                 Node endNode = FindClosestNode(player.position);
+                Debug.Log("endNode" + endNode.name);
                 if (_pathfindingCoroutine != null)
                 {
                     StopCoroutine(_pathfindingCoroutine);
@@ -60,7 +60,14 @@ public class EnemyMovement : MonoBaseState
         }
     }
 
- 
+    void Update()
+    {
+        if (isChasing && _path != null && _currentPathIndex < _path.Count)
+        {
+            MoveAlongPath();
+        }
+    }
+
 
     private Node FindClosestNode(Vector3 position)
     {
@@ -120,66 +127,55 @@ public class EnemyMovement : MonoBaseState
         // Mover hacia el objetivo
         transform.position = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
 
-        //if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
-        //{
-        //    _currentPathIndex++;
-        //}
-
-
-        //_gAgent._state.Set("DistanciaPlayer", Vector3.Distance(transform.position, player.position));
-
         if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
         {
             _currentPathIndex++;
-
-            if (_currentPathIndex >= _path.Count)
-            {
-                _stateFinished = true; // Marcar estado como finalizado
-            }
         }
 
+
+       
     } 
 
 
 
 
-    public override void UpdateLoop()
-    {
-        if (player != null && Vector3.Distance(transform.position, player.position) < chaseDistance)
-        {
-            _stateFinished = true;
-        }
+    //public override void UpdateLoop()
+    //{
+    //    if (player != null && Vector3.Distance(transform.position, player.position) < chaseDistance)
+    //    {
+    //        _stateFinished = true;
+    //    }
 
-        if (isChasing)
-        {
-            MoveAlongPath();
-        }
-    }
+    //    if (isChasing)
+    //    {
+    //        MoveAlongPath();
+    //    }
+    //}
 
-    public override void Enter(IState from, Dictionary<string, object> transitionParameters = null)
-    {
-        Debug.Log("EnemyMovement");
-        base.Enter(from, transitionParameters);
-        guy = GetComponent<Guy>();
+    //public override void Enter(IState from, Dictionary<string, object> transitionParameters = null)
+    //{
+    //    Debug.Log("EnemyMovement");
+    //    base.Enter(from, transitionParameters);
+    //    guy = GetComponent<Guy>();
 
-    }
+    //}
 
-    public override Dictionary<string, object> Exit(IState to)
-    {
+    //public override Dictionary<string, object> Exit(IState to)
+    //{
       
-        _stateFinished = false;
-        return base.Exit(to);
-    }
+    //    _stateFinished = false;
+    //    return base.Exit(to);
+    //}
 
 
-    public override IState ProcessInput()
-    {
-        if (_stateFinished && Transitions.ContainsKey(StateTransitions.ToIdle))
-            return Transitions[StateTransitions.ToIdle];
+    //public override IState ProcessInput()
+    //{
+    //    if (_stateFinished && Transitions.ContainsKey(StateTransitions.ToIdle))
+    //        return Transitions[StateTransitions.ToIdle];
 
-        return this;
+    //    return this;
 
-    }
+    //}
 
 
   
