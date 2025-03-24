@@ -21,15 +21,15 @@ public class EnemyMovement : MonoBaseState
     bool _stateFinished;
     void Start()
     {
-       
-    }
-
-    public void Empezar()
-    {
         _aStar = new AStar<Node>();
         _aStar.OnPathCompleted += GetPath;
         _aStar.OnCantCalculate += PathNotFound;
         _aStar.maxFrameTime = maxFrameTime; // Ajuste del tiempo máximo por frame
+    }
+
+    public void Empezar()
+    {
+       
         Debug.Log("Empezar");
         StartCoroutine(UpdatePathRoutine());
     }
@@ -49,10 +49,11 @@ public class EnemyMovement : MonoBaseState
                 {
                     StopCoroutine(_pathfindingCoroutine);
                 }
-                _pathfindingCoroutine = StartCoroutine((IEnumerator)AEstrella<Node>.Go(startNode, endNode, GetHeuristic, node => node == endNode, Explode));
+                _pathfindingCoroutine = StartCoroutine(_aStar.Run(startNode, node => node == endNode, Explode, GetHeuristic));
             }
             else
             {
+                Debug.Log("Player out of range");
                 isChasing = false;
             }
             yield return new WaitForSeconds(updatePathInterval); // Esperar antes de recalcular la ruta
@@ -80,15 +81,16 @@ public class EnemyMovement : MonoBaseState
         return closestNode;
     }
 
-    private IEnumerable<AEstrella<Node>.WeightedNode> Explode(Node node)
-    {
-        return node.neighbour.Select(neighbour => new AEstrella<Node>.WeightedNode(neighbour, 1));
-    }
+        private IEnumerable<WeightedNode<Node>> Explode(Node node)
+        {
+            return node.neighbour.Select(neighbour => new WeightedNode<Node>(neighbour, 1));
+        }
 
-    private float GetHeuristic(Node node, Node goal)
-    {
-        return Vector3.Distance(node.transform.position, goal.transform.position);
-    }
+        private float GetHeuristic(Node node)
+        {
+            return Vector3.Distance(node.transform.position, player.position);
+        }
+
 
     private void GetPath(IEnumerable<Node> path)
     {
@@ -136,7 +138,10 @@ public class EnemyMovement : MonoBaseState
             }
         }
 
-    }
+    } 
+
+
+
 
     public override void UpdateLoop()
     {
