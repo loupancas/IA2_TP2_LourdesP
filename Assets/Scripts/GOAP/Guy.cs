@@ -123,14 +123,14 @@ public class Guy : MonoBehaviour
     private void PerformPickUp(Entidad us, Item other)
     {
         Debug.Log("PerformPickUp called");
-        Debug.Log("PerformPickUp" + other.gameObject);
         other=_pastafrola;
+        Debug.Log("PerformPickUp" + other.gameObject);
+
         if (other != _target) return;
 
         _ent.AddItem(other);
 
         _enemyMovement.Empezar();
-        Debug.Log("PerformPickUp" + other.gameObject);
 
     }
 

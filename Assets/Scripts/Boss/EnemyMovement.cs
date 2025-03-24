@@ -36,10 +36,11 @@ public class EnemyMovement : MonoBaseState
 
     private IEnumerator UpdatePathRoutine()
     {
+        Debug.Log("UpdatePathRoutine started");
         while (true)
         {
             // Recalcular la ruta si el jugador está dentro del rango de persecución
-            if (Vector3.Distance(transform.position, player.position) < chaseDistance)
+            if (player != null && Vector3.Distance(transform.position, player.position) < chaseDistance)
             {
                 isChasing = true;
                 Node startNode = FindClosestNode(transform.position);
@@ -139,7 +140,7 @@ public class EnemyMovement : MonoBaseState
 
     public override void UpdateLoop()
     {
-        if (Vector3.Distance(transform.position, player.position) < chaseDistance)
+        if (player != null && Vector3.Distance(transform.position, player.position) < chaseDistance)
         {
             _stateFinished = true;
         }
