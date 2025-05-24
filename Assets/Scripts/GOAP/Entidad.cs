@@ -32,6 +32,8 @@ public class Entidad : MonoBehaviour
     Transform _transformPosition;
     Waypoint _gizmoRealTarget;
     IEnumerable<Waypoint> _gizmoPath;
+    private bool isAnimating = false;
+    [SerializeField] private Animator animator;
 
     #region GETTERS & SETTERS
     public IEnumerable<Item> items { get { return _items; } }
@@ -250,6 +252,11 @@ public class Entidad : MonoBehaviour
         //Debug.Log("GoTo" + destination);
 
         _navCR = StartCoroutine(Navigate(destination));
+        if (!isAnimating)
+        {
+            StartCoroutine(PlayAnimation("walk"));
+            Debug.Log("Performing walk animation.");
+        }
     }
 
     public void Stop()
@@ -316,7 +323,24 @@ public class Entidad : MonoBehaviour
             xf.GetComponent<Renderer>().material.color = color;
         lblNumber.color = new Color(1f - color.r, 1f - color.g, 1f - color.b);
     }
+    private IEnumerator PlayAnimation(string triggerName)
+    {
+        isAnimating = true;
+        animator.SetTrigger(triggerName);
 
+        yield return null;
+
+        AnimatorStateInfo state = animator.GetCurrentAnimatorStateInfo(0);
+        int currentAnimHash = state.fullPathHash;
+
+        while (animator.GetCurrentAnimatorStateInfo(0).fullPathHash == currentAnimHash && state.normalizedTime < 1f)
+        {
+            yield return null;
+            state = animator.GetCurrentAnimatorStateInfo(0);
+        }
+
+        isAnimating = false;
+    }
     void OnDrawGizmos()
     {
         if (_gizmoPath == null)

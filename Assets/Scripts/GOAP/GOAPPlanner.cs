@@ -223,7 +223,7 @@ public class GOAPPlanner:MonoBehaviour
                 .Effect("otherHas"+ ItemType.Key.ToString(),false)
 
                 ,new GOAPAction("Matar")
-                .SetCost(4f)
+                .SetCost(3f)
                 .SetItem(ItemType.Entity)
                 .Pre("entity", "vivo")
                 .Pre("accessible"+ ItemType.Entity.ToString(), true)

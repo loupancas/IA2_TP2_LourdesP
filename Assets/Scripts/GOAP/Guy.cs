@@ -29,8 +29,11 @@ public class Guy : MonoBehaviour
     public int llave = 0;
     Item _door;
     IEnumerable<Tuple<ActionEntity, Item>> _plan;
+    private bool isAnimating = false;
+    [SerializeField] private Animator animator;
 
 
+    
 
     private void PerformSobornar(Entidad us, Item other)
     {
@@ -57,13 +60,18 @@ public class Guy : MonoBehaviour
 
 
     private void PerformAttack(Entidad us, Item other)
-    {
+    {   
         Debug.Log("PerformAttack", other.gameObject);
         if (other != _target) return;
 
         var mace = _ent.items.FirstOrDefault(it => it.type == ItemType.Mace);
         if (mace)
         {
+            if (!isAnimating)
+            {
+                StartCoroutine(PlayAnimation("weapon_attack"));
+                Debug.Log("Performing weapon_attack animation.");
+            }
             other.Kill();
             if (other.type == ItemType.Door)
                 Destroy(_ent.Removeitem(mace).gameObject);
@@ -76,10 +84,17 @@ public class Guy : MonoBehaviour
 
     private void Matar(Entidad us, Item other)
     {
+        Debug.Log("el t arget es "+_target);
         if (other != _target) return;
         var mace = _ent.items.FirstOrDefault(it => it.type == ItemType.Mace);
         if (mace)
         {
+
+            if (!isAnimating)
+            {
+                StartCoroutine(PlayAnimation("attack"));
+                Debug.Log("Performing attack animation.");
+            }
             other.Kill();
             Destroy(_ent.Removeitem(mace).gameObject);
 
@@ -90,34 +105,53 @@ public class Guy : MonoBehaviour
         Debug.Log("Matar failed");
     }
 
-    private void PerformOpen(Entidad us, Item other)
+    public void PerformOpen(Entidad us, Item other)
     {
         Debug.Log("PerformOpen", other.gameObject);
         other = _door;
         if (other != _target) return;
-
 
         var key = _ent.items.FirstOrDefault(it => it.type == ItemType.Key);
         Door doorComponent = other.GetComponent<Door>();
 
         if (key != null && doorComponent.open == false)
         {
-
-            Debug.Log("Open" + other.gameObject);
+            Debug.Log("Open " + other.gameObject);
             doorComponent.Open();
             Destroy(_ent.Removeitem(key).gameObject);
-            _fsm.Feed(ActionEntity.NextStep);
 
+            if (!isAnimating)
+            {
+                StartCoroutine(PlayAnimation("open"));
+                Debug.Log("Performing OPEN animation.");
+            }
+
+            _fsm.Feed(ActionEntity.NextStep);
         }
         else
         {
             _fsm.Feed(ActionEntity.FailedStep);
             Debug.Log("PerformOpen failed");
+        }
+    }
 
+    private IEnumerator PlayAnimation(string triggerName)
+    {
+        isAnimating = true;
+        animator.SetTrigger(triggerName);
+
+        yield return null;
+
+        AnimatorStateInfo state = animator.GetCurrentAnimatorStateInfo(0);
+        int currentAnimHash = state.fullPathHash;
+
+        while (animator.GetCurrentAnimatorStateInfo(0).fullPathHash == currentAnimHash && state.normalizedTime < 1f)
+        {
+            yield return null;
+            state = animator.GetCurrentAnimatorStateInfo(0);
         }
 
-        //_fsm.Feed(ActionEntity.NextStep);
-
+        isAnimating = false;
     }
 
     private void PerformPickUp(Entidad us, Item other)
@@ -125,7 +159,11 @@ public class Guy : MonoBehaviour
         Debug.Log("PerformPickUp called");
         other=_pastafrola;
         Debug.Log("PerformPickUp" + other.gameObject);
-
+        if (!isAnimating)
+        {
+            StartCoroutine(PlayAnimation("pick_up"));
+            Debug.Log("Performing pickup animation.");
+        }
         if (other != _target) return;
 
         _ent.AddItem(other);
@@ -137,7 +175,11 @@ public class Guy : MonoBehaviour
     private void PerformPickUpM(Entidad us, Item other)
     {
         if (other != _target) return;
-
+        if (!isAnimating)
+        {
+            StartCoroutine(PlayAnimation("pick_up"));
+            Debug.Log("Performing esta deberia ser atacck? animation.");
+        }
         _ent.AddItem(other);
         Debug.Log("PerformPickUpM" + other.gameObject);
         _fsm.Feed(ActionEntity.NextStep);

@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class EnemyMovement : MonoBehaviour
 {
-    private AStar<Node> _aStar;
+    private AStar<Node> _aStar; 
     //private AEstrella<Node> _aStar;
     private List<Node> _path;
     private int _currentPathIndex;
@@ -17,6 +17,8 @@ public class EnemyMovement : MonoBehaviour
     public float maxFrameTime = 0.016f; // Tiempo máximo por frame (60 FPS), ajustable desde el Inspector
     private bool isChasing = false;
     private Coroutine _pathfindingCoroutine;
+    private bool isAnimating = false;
+    [SerializeField] private Animator animator;
     void Start()
     {
         _aStar = new AStar<Node>();
@@ -64,11 +66,12 @@ public class EnemyMovement : MonoBehaviour
     {
         if (isChasing && _path != null && _currentPathIndex < _path.Count)
         {
+            
             MoveAlongPath();
         }
     }
 
-
+   
     private Node FindClosestNode(Vector3 position)
     {
         Node[] nodes = FindObjectsOfType<Node>();
@@ -88,15 +91,15 @@ public class EnemyMovement : MonoBehaviour
         return closestNode;
     }
 
-        private IEnumerable<WeightedNode<Node>> Explode(Node node)
-        {
-            return node.neighbour.Select(neighbour => new WeightedNode<Node>(neighbour, 1));
-        }
+    private IEnumerable<WeightedNode<Node>> Explode(Node node)
+    {
+        return node.neighbour.Select(neighbour => new WeightedNode<Node>(neighbour, 1));
+    }
 
-        private float GetHeuristic(Node node)
-        {
-            return Vector3.Distance(node.transform.position, player.position);
-        }
+    private float GetHeuristic(Node node)
+    {
+        return Vector3.Distance(node.transform.position, player.position);
+    }
 
 
     private void GetPath(IEnumerable<Node> path)
@@ -130,6 +133,7 @@ public class EnemyMovement : MonoBehaviour
         if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
         {
             _currentPathIndex++;
+            
         }
 
 
