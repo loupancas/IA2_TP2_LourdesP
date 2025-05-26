@@ -5,7 +5,6 @@ using System.Linq;
 using System;
 using Random = UnityEngine.Random;
 
-
 public class Entidad : MonoBehaviour
 {
     #region VARIABLES
@@ -76,21 +75,20 @@ public class Entidad : MonoBehaviour
         }
     }
 
-
     public String alive
     {
         get { return _alive; }
         set
         {
             _alive = value;
-
         }
     }
-
-
     #endregion
 
     #endregion
+
+    Coroutine _navCR;
+    Coroutine _animCR;
 
     void Awake()
     {
@@ -117,6 +115,7 @@ public class Entidad : MonoBehaviour
     #region MOVEMENT & COLLISION
     void FixedUpdate()
     {
+        Debug.Log("can move? "+Guy.Instance.canMove);
         transform.Translate(Time.fixedDeltaTime * _vel * speed);
     }
 
@@ -139,7 +138,6 @@ public class Entidad : MonoBehaviour
         else if (col.collider.tag == "Wall")
         {
             OnHitWall(this, col.collider.transform);
-
         }
         else
         {
@@ -148,8 +146,6 @@ public class Entidad : MonoBehaviour
                 Debug.Log("ItemHit" + item);
             OnHitItem(this, item);
         }
-
-
 
         if (col.collider.tag == "Police")
         {
@@ -162,13 +158,12 @@ public class Entidad : MonoBehaviour
         alive = "muerto";
     }
 
-    void OnTriggerEnter(UnityEngine.Collider other)
+    void OnTriggerEnter(Collider other)
     {
         var e = other.GetComponent<Entidad>();
         if (e != null && e != this)
         {
             Debug.Log(e.name + " hit " + name);
-            ;
         }
     }
     #endregion
@@ -176,8 +171,6 @@ public class Entidad : MonoBehaviour
     #region ITEM MANAGEMENT
     public void AddItem(Item item)
     {
-
-
         _items.Add(item);
         Debug.Log($"Item {item.name} added to {gameObject.name}'s inventory.");
 
@@ -189,13 +182,11 @@ public class Entidad : MonoBehaviour
 
     public Item Removeitem(Item item)
     {
-
         _items.Remove(item);
         item.OnInventoryRemove();
         item.transform.parent = null;
         RefreshItemPositions();
         return item;
-
     }
 
     public Item DropItem(Item item)
@@ -211,8 +202,6 @@ public class Entidad : MonoBehaviour
         }
         return null;
     }
-
-
 
     public IEnumerable<Item> RemoveAllitems()
     {
@@ -246,62 +235,49 @@ public class Entidad : MonoBehaviour
         return new Vector3(v.x, 0f, v.z);
     }
 
-    Coroutine _navCR;
     public void GoTo(Vector3 destination)
     {
-        //Debug.Log("GoTo" + destination);
-
+        if (_navCR != null)
+            StopCoroutine(_navCR);
         _navCR = StartCoroutine(Navigate(destination));
-        if (!isAnimating)
-        {
-            StartCoroutine(PlayAnimation("walk"));
-            Debug.Log("Performing walk animation.");
-        }
+
+        
     }
 
     public void Stop()
     {
-        if (_navCR != null) StopCoroutine(_navCR);
-        _vel = Vector3.zero;
+        if (_navCR != null)
+            StopCoroutine(_navCR);
+        
     }
 
     protected virtual IEnumerator Navigate(Vector3 destination)
     {
         var srcWp = Navigation.instance.NearestTo(transform.position);
-        //Debug.Log("srcWp" + srcWp);
         var dstWp = Navigation.instance.NearestTo(destination);
-        //Debug.Log("dstWp" + dstWp);
 
         _gizmoRealTarget = dstWp;
         Waypoint reachedDst = srcWp;
 
-        if (srcWp != dstWp)
+        if (srcWp != dstWp && Guy.Instance.canMove==true)
         {
+            //Guy.Instance._animator.SetTrigger("walk");
             var path = _gizmoPath = AEstrella<Waypoint>.Go(
                   srcWp
                 , dstWp
                 , (wa, wb) => Vector3.Distance(wa.transform.position, wb.transform.position)
                 , w => w == dstWp
-                , w =>
-                    //w.nearbyItems.Any(it => it.type == ItemType.Door)
-                    //? null
-                    //:
-                    w.adyacent
-                    //.Where(a => a.nearbyItems.All(it => it.type != ItemType.Door))
-                    .Select(a => new AEstrella<Waypoint>.WeightedNode(a, Vector3.Distance(a.transform.position, w.transform.position)))
+                , w => w.adyacent.Select(a => new AEstrella<Waypoint>.WeightedNode(a, Vector3.Distance(a.transform.position, w.transform.position)))
             );
             if (path != null)
             {
                 foreach (var next in path.Select(w => FloorPos(w)))
                 {
-
                     while ((next - FloorPos(this)).sqrMagnitude >= 0.05f)
                     {
                         _vel = (next - FloorPos(this)).normalized;
                         yield return null;
                     }
-                    //_vel = (next - FloorPos(this)).normalized;
-                    //yield return new WaitUntil(() => (next - FloorPos(this)).sqrMagnitude < 0.05f);
                 }
             }
             reachedDst = path.Last();
@@ -314,7 +290,10 @@ public class Entidad : MonoBehaviour
         }
 
         _vel = Vector3.zero;
+        //Guy.Instance._animator.ResetTrigger("walk");
         OnReachDestination(this, reachedDst, reachedDst == dstWp);
+
+        
     }
 
     void Paint(Color color)
@@ -323,12 +302,10 @@ public class Entidad : MonoBehaviour
             xf.GetComponent<Renderer>().material.color = color;
         lblNumber.color = new Color(1f - color.r, 1f - color.g, 1f - color.b);
     }
+
     private IEnumerator PlayAnimation(string triggerName)
     {
-        isAnimating = true;
         animator.SetTrigger(triggerName);
-
-        yield return null;
 
         AnimatorStateInfo state = animator.GetCurrentAnimatorStateInfo(0);
         int currentAnimHash = state.fullPathHash;
@@ -338,9 +315,8 @@ public class Entidad : MonoBehaviour
             yield return null;
             state = animator.GetCurrentAnimatorStateInfo(0);
         }
-
-        isAnimating = false;
     }
+
     void OnDrawGizmos()
     {
         if (_gizmoPath == null)
