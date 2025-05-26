@@ -24,7 +24,7 @@ public class Guy : MonoBehaviour
     public static Guy Instance { get; private set; }
 
     private EventFSM<ActionEntity> _fsm;
-    private Item _target;
+    public Item _target;
     private Item _pastafrola;
     EnemyMovement _enemyMovement;
     private Entidad _ent;
@@ -54,9 +54,9 @@ public class Guy : MonoBehaviour
 
             Debug.Log("Acepto dinero");
             llave = 1;
-            canMove = false;
 
-            _animator.SetTrigger("pick_up");
+            
+            canMove = false;
             StartCoroutine(WaitForAnimationToEnd("pick_up", () =>
             {
                 canMove = true;
@@ -70,7 +70,7 @@ public class Guy : MonoBehaviour
         }
     }
 
-    private IEnumerator WaitForAnimationToEnd(string animationName, Action onComplete)
+    public IEnumerator WaitForAnimationToEnd(string animationName, Action onComplete)
     {
         // Esperamos un frame para asegurarnos que la animación empezó
         yield return null;
@@ -98,8 +98,7 @@ public class Guy : MonoBehaviour
         var mace = _ent.items.FirstOrDefault(it => it.type == ItemType.Mace);
         if (mace)
         {
-            canMove = false;
-            _animator.SetTrigger("pick_up");
+            //_animator.SetTrigger("pick_up");
             /*StartCoroutine(WaitForCurrentAnimationToEnd(() =>
             {
                 other.Kill();
@@ -122,8 +121,8 @@ public class Guy : MonoBehaviour
         var mace = _ent.items.FirstOrDefault(it => it.type == ItemType.Mace);
         if (mace)
         {
-            canMove = false;
-            _animator.SetTrigger("pick_up");
+            //canMove = false;
+            //_animator.SetTrigger("pick_up");
             /*StartCoroutine(WaitForCurrentAnimationToEnd(() =>
             {
                 other.Kill();
@@ -148,15 +147,14 @@ public class Guy : MonoBehaviour
 
         if (key != null && doorComponent.open == false)
         {
-            canMove = false;
-            _animator.SetTrigger("open");
+            _fsm.Feed(ActionEntity.NextStep);
 
-            /*StartCoroutine(WaitForCurrentAnimationToEnd(() =>
+            /*canMove = false;
+
+            _animator.SetTrigger("open");
+            StartCoroutine(WaitForAnimationToEnd("open", () =>
             {
-                doorComponent.Open();
-                Destroy(_ent.Removeitem(key).gameObject);
                 canMove = true;
-                _fsm.Feed(ActionEntity.NextStep);
             }));*/
         }
         else
@@ -172,22 +170,22 @@ public class Guy : MonoBehaviour
 
         if (other != _target) return;
 
-        canMove = false;
-        _animator.SetTrigger("pick_up");
-       /* StartCoroutine(WaitForCurrentAnimationToEnd(() =>
-        {
-            _ent.AddItem(other);
-            _enemyMovement.Empezar();
-            canMove = true;
-        }));*/
+        //canMove = false;
+        // _animator.SetTrigger("pick_up");
+        /* StartCoroutine(WaitForCurrentAnimationToEnd(() =>
+         {
+             _ent.AddItem(other);
+             _enemyMovement.Empezar();
+             canMove = true;
+         }));*/
     }
 
     private void PerformPickUpM(Entidad us, Item other)
     {
         if (other != _target) return;
 
-        canMove = false;
-        _animator.SetTrigger("pick_up");
+        //canMove = false;
+        // _animator.SetTrigger("pick_up");
         /*StartCoroutine(WaitForCurrentAnimationToEnd(() =>
         {
             _ent.AddItem(other);
@@ -202,8 +200,8 @@ public class Guy : MonoBehaviour
 
         if (_police.alive == "muerto")
         {
-            canMove = false;
-            _animator.SetTrigger("pick_up");
+            // canMove = false;
+            // _animator.SetTrigger("pick_up");
             /*StartCoroutine(WaitForCurrentAnimationToEnd(() =>
             {
                 _ent.AddItem(other);
@@ -252,30 +250,30 @@ public class Guy : MonoBehaviour
         var success = new State<ActionEntity>("success");
         var matar = new State<ActionEntity>("matar");
 
-        matar.OnEnter += a => { if (canMove) _ent.GoTo(_target.transform.position); _ent.OnHitItem += Matar; };
+        matar.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += Matar; };
         matar.OnExit += a => _ent.OnHitItem -= Matar;
 
-        kill.OnEnter += a => { if (canMove) _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformAttack; };
+        kill.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformAttack; };
         kill.OnExit += a => _ent.OnHitItem -= PerformAttack;
 
-        sobornar.OnEnter += a => { if (canMove) _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformSobornar; };
+        sobornar.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformSobornar; };
         sobornar.OnExit += a => _ent.OnHitItem -= PerformSobornar;
 
-        breaking.OnEnter += a => { if (canMove) _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformAttack; };
+        breaking.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformAttack; };
         breaking.OnExit += a => _ent.OnHitItem -= PerformAttack;
 
         failStep.OnEnter += a => { _ent.Stop(); Debug.Log("Plan failed"); };
 
-        loot.OnEnter += a => { if (canMove) _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformLoot; };
+        loot.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformLoot; };
         loot.OnExit += a => _ent.OnHitItem -= PerformLoot;
 
-        pickup.OnEnter += a => { if (canMove) _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformPickUp; };
+        pickup.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformPickUp; };
         pickup.OnExit += a => _ent.OnHitItem -= PerformPickUp;
 
-        pickupm.OnEnter += a => { if (canMove) _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformPickUpM; };
+        pickupm.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformPickUpM; };
         pickupm.OnExit += a => _ent.OnHitItem -= PerformPickUpM;
 
-        open.OnEnter += a => { if (canMove) _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformOpen; };
+        open.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformOpen; };
         open.OnExit += a => _ent.OnHitItem -= PerformOpen;
 
         bridgeStep.OnEnter += a =>
@@ -317,6 +315,15 @@ public class Guy : MonoBehaviour
         _fsm = new EventFSM<ActionEntity>(idle, any);
     }
 
+    public IEnumerator DelayedAnimation(string animationName, float delayedSeconds, Action onComplete = null)
+    {
+        yield return new WaitForSeconds(delayedSeconds * Time.deltaTime);
+
+        yield return StartCoroutine(Guy.Instance.WaitForAnimationToEnd(animationName, () =>
+        {
+            onComplete?.Invoke();
+        }));
+    }
     public void ExecutePlan(List<Tuple<ActionEntity, Item>> plan)
     {
         _plan = plan;

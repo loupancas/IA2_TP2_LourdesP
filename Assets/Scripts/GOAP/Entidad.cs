@@ -18,9 +18,13 @@ public class Entidad : MonoBehaviour
     public event Action<Entidad, Item> OnHitItem = delegate { };
     public event Action<Entidad, Waypoint, bool> OnReachDestination = delegate { };
 
-    public List<Item> initialItems;
+    private HashSet<Collider> _collidedItems = new HashSet<Collider>();
+    private Dictionary<Collider, float> _lastCollisionTime = new Dictionary<Collider, float>();
+    private float animationCooldown = 2f;
 
+    public List<Item> initialItems;
     public List<Item> _items = new List<Item>();
+
     Vector3 _vel;
     bool _onFloor;
     string _label;
@@ -31,33 +35,29 @@ public class Entidad : MonoBehaviour
     Transform _transformPosition;
     Waypoint _gizmoRealTarget;
     IEnumerable<Waypoint> _gizmoPath;
-    private bool isAnimating = false;
+
     [SerializeField] private Animator animator;
 
+    Coroutine _navCR;
+    Coroutine _animCR;
+    #endregion
+
     #region GETTERS & SETTERS
-    public IEnumerable<Item> items { get { return _items; } }
+    public IEnumerable<Item> items => _items;
 
     public string label
     {
-        get { return _label; }
+        get => _label;
         set
         {
-            if (value == null || value.Length == 0)
-            {
-                _label = null;
-                lblId.text = "";
-            }
-            else
-            {
-                _label = value;
-                lblId.text = "\u2190" + value;
-            }
+            _label = string.IsNullOrEmpty(value) ? null : value;
+            lblId.text = string.IsNullOrEmpty(value) ? "" : "\u2190" + value;
         }
     }
 
     public int number
     {
-        get { return _number; }
+        get => _number;
         set
         {
             _number = value;
@@ -67,7 +67,7 @@ public class Entidad : MonoBehaviour
 
     public Color color
     {
-        get { return _color; }
+        get => _color;
         set
         {
             _color = value;
@@ -75,47 +75,33 @@ public class Entidad : MonoBehaviour
         }
     }
 
-    public String alive
+    public string alive
     {
-        get { return _alive; }
-        set
-        {
-            _alive = value;
-        }
+        get => _alive;
+        set => _alive = value;
     }
     #endregion
 
-    #endregion
-
-    Coroutine _navCR;
-    Coroutine _animCR;
-
     void Awake()
     {
-        if (_items == null)
-        {
-            _items = new List<Item>();
-        }
+        _items = _items ?? new List<Item>();
         _vel = Vector3.zero;
         _onFloor = false;
         label = initialId;
         number = 99;
-        _alive = "vivo";
+        alive = "vivo";
         _transformPosition = GetComponent<Transform>();
     }
 
     void Start()
     {
         color = initialColor;
-
         foreach (var it in initialItems)
             AddItem(Instantiate(it));
     }
 
-    #region MOVEMENT & COLLISION
     void FixedUpdate()
     {
-        Debug.Log("can move? "+Guy.Instance.canMove);
         transform.Translate(Time.fixedDeltaTime * _vel * speed);
     }
 
@@ -130,26 +116,43 @@ public class Entidad : MonoBehaviour
 
     void OnCollisionEnter(Collision col)
     {
-        if (col.collider.tag == "Floor")
+        if (col.collider.CompareTag("Floor"))
         {
             _onFloor = true;
             OnHitFloor(this);
         }
-        else if (col.collider.tag == "Wall")
+        else if (col.collider.CompareTag("Wall"))
         {
             OnHitWall(this, col.collider.transform);
+        }
+        else if (col.collider.CompareTag("Police"))
+        {
+            Life();
         }
         else
         {
             var item = col.collider.GetComponentInParent<Item>();
             if (item && item.transform.parent != inventory)
-                Debug.Log("ItemHit" + item);
-            OnHitItem(this, item);
-        }
+            {
+                Debug.Log("ItemHit " + item);
 
-        if (col.collider.tag == "Police")
-        {
-            Life();
+                bool samePosition = Vector3.Distance(Guy.Instance._target.transform.position, transform.position) < 0.01f;
+                _lastCollisionTime.TryGetValue(col.collider, out float lastTime);
+                float timeSinceLastHit = Time.time - lastTime;
+
+                if (!_collidedItems.Contains(col.collider) && samePosition && timeSinceLastHit >= animationCooldown)
+                {
+                    _collidedItems.Add(col.collider);
+                    _lastCollisionTime[col.collider] = Time.time;
+
+                    StartCoroutine(DelayedAnimation("pick_up", 2f, () =>
+                    {
+                        Guy.Instance.canMove = true;
+                    }));
+                }
+
+                OnHitItem(this, item);
+            }
         }
     }
 
@@ -166,17 +169,13 @@ public class Entidad : MonoBehaviour
             Debug.Log(e.name + " hit " + name);
         }
     }
-    #endregion
 
-    #region ITEM MANAGEMENT
     public void AddItem(Item item)
     {
         _items.Add(item);
         Debug.Log($"Item {item.name} added to {gameObject.name}'s inventory.");
-
         item.OnInventoryAdd();
         item.transform.parent = inventory;
-
         RefreshItemPositions();
     }
 
@@ -220,35 +219,26 @@ public class Entidad : MonoBehaviour
         const float Dist = 1.25f;
         for (int i = 0; i < _items.Count; i++)
         {
-            var phi = (i + 0.5f) * Mathf.PI / (_items.Count);
+            var phi = (i + 0.5f) * Mathf.PI / _items.Count;
             _items[i].transform.localPosition = new Vector3(-Mathf.Cos(phi) * Dist, Mathf.Sin(phi) * Dist, 0f);
         }
     }
-    #endregion
 
-    Vector3 FloorPos(MonoBehaviour b)
-    {
-        return FloorPos(b.transform.position);
-    }
-    Vector3 FloorPos(Vector3 v)
-    {
-        return new Vector3(v.x, 0f, v.z);
-    }
+    Vector3 FloorPos(MonoBehaviour b) => FloorPos(b.transform.position);
+
+    Vector3 FloorPos(Vector3 v) => new Vector3(v.x, 0f, v.z);
 
     public void GoTo(Vector3 destination)
     {
         if (_navCR != null)
             StopCoroutine(_navCR);
         _navCR = StartCoroutine(Navigate(destination));
-
-        
     }
 
     public void Stop()
     {
         if (_navCR != null)
             StopCoroutine(_navCR);
-        
     }
 
     protected virtual IEnumerator Navigate(Vector3 destination)
@@ -259,16 +249,16 @@ public class Entidad : MonoBehaviour
         _gizmoRealTarget = dstWp;
         Waypoint reachedDst = srcWp;
 
-        if (srcWp != dstWp && Guy.Instance.canMove==true)
+        if (srcWp != dstWp)
         {
-            //Guy.Instance._animator.SetTrigger("walk");
             var path = _gizmoPath = AEstrella<Waypoint>.Go(
-                  srcWp
-                , dstWp
-                , (wa, wb) => Vector3.Distance(wa.transform.position, wb.transform.position)
-                , w => w == dstWp
-                , w => w.adyacent.Select(a => new AEstrella<Waypoint>.WeightedNode(a, Vector3.Distance(a.transform.position, w.transform.position)))
+                srcWp,
+                dstWp,
+                (wa, wb) => Vector3.Distance(wa.transform.position, wb.transform.position),
+                w => w == dstWp,
+                w => w.adyacent.Select(a => new AEstrella<Waypoint>.WeightedNode(a, Vector3.Distance(a.transform.position, w.transform.position)))
             );
+
             if (path != null)
             {
                 foreach (var next in path.Select(w => FloorPos(w)))
@@ -280,6 +270,7 @@ public class Entidad : MonoBehaviour
                     }
                 }
             }
+
             reachedDst = path.Last();
         }
 
@@ -290,16 +281,14 @@ public class Entidad : MonoBehaviour
         }
 
         _vel = Vector3.zero;
-        //Guy.Instance._animator.ResetTrigger("walk");
         OnReachDestination(this, reachedDst, reachedDst == dstWp);
-
-        
     }
 
     void Paint(Color color)
     {
         foreach (Transform xf in body)
             xf.GetComponent<Renderer>().material.color = color;
+
         lblNumber.color = new Color(1f - color.r, 1f - color.g, 1f - color.b);
     }
 
@@ -317,10 +306,21 @@ public class Entidad : MonoBehaviour
         }
     }
 
+    private IEnumerator DelayedAnimation(string animationTrigger, float delaySeconds, Action onComplete = null)
+    {
+        yield return new WaitForSeconds(delaySeconds);
+
+        Guy.Instance._animator.SetTrigger(animationTrigger);
+
+        yield return Guy.Instance.WaitForAnimationToEnd(animationTrigger, () =>
+        {
+            onComplete?.Invoke();
+        });
+    }
+
     void OnDrawGizmos()
     {
-        if (_gizmoPath == null)
-            return;
+        if (_gizmoPath == null) return;
 
         Gizmos.color = color;
         var points = _gizmoPath.Select(w => FloorPos(w));
@@ -331,6 +331,6 @@ public class Entidad : MonoBehaviour
             last = p;
         }
         if (_gizmoRealTarget != null)
-            Gizmos.DrawCube(_gizmoRealTarget.transform.position + Vector3.up * 1f, Vector3.one * 0.3f);
+            Gizmos.DrawCube(_gizmoRealTarget.transform.position + Vector3.up, Vector3.one * 0.3f);
     }
 }
