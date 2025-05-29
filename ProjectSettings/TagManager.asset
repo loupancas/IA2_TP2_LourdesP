@@ -10,6 +10,8 @@ TagManager:
   - Floor
   - Wall
   - Police
+  - Key
+  - PastaFrola
   layers:
   - Default
   - TransparentFX

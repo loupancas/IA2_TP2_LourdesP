@@ -17,6 +17,8 @@ public class Item : MonoBehaviour
     private Waypoint _wp;
     private bool _insideInventory;
     private bool _onFloor;
+    public bool pickedUp;
+
 
     public void OnInventoryAdd()
     {

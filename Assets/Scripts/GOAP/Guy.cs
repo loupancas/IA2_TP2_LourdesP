@@ -30,45 +30,14 @@ public class Guy : MonoBehaviour
     private Entidad _ent;
     private Entidad _police;
     public int llave = 0;
-    Item _door;
     IEnumerable<Tuple<ActionEntity, Item>> _plan;
     private bool isAnimating = false;
     [SerializeField] public Animator _animator;
     public bool canMove = true;
-
+    public Door door;
+    public Item _door;
     public bool CanMove() => canMove;
-
-    private void PerformSobornar(Entidad us, Item other)
-    {
-        if (other != _target) return;
-
-        var money = _ent.items.FirstOrDefault(it => it.type == ItemType.Money);
-        var key = _police.items.FirstOrDefault(it => it.type == ItemType.Key);
-
-        if (money != null && key != null)
-        {
-            _police.DropItem(key);
-            _ent.DropItem(money);
-            _ent.AddItem(key);
-            _police.AddItem(money);
-
-            Debug.Log("Acepto dinero");
-            llave = 1;
-
-            
-            canMove = false;
-            StartCoroutine(WaitForAnimationToEnd("pick_up", () =>
-            {
-                canMove = true;
-                _fsm.Feed(ActionEntity.NextStep);
-            }));
-        }
-        else
-        {
-            _fsm.Feed(ActionEntity.FailedStep);
-            Debug.Log("PerformSobornar failed");
-        }
-    }
+    public bool animationplayed=false;
 
     public IEnumerator WaitForAnimationToEnd(string animationName, Action onComplete)
     {
@@ -137,39 +106,65 @@ public class Guy : MonoBehaviour
         }
     }
 
-    public void PerformOpen(Entidad us, Item other)
+    private void PerformSobornar(Entidad us, Item other)
     {
-        other = _door;
+        Debug.Log("test 1");
+
         if (other != _target) return;
 
-        var key = _ent.items.FirstOrDefault(it => it.type == ItemType.Key);
-        Door doorComponent = other.GetComponent<Door>();
+        var money = _ent.items.FirstOrDefault(it => it.type == ItemType.Money);
+        var key = _police.items.FirstOrDefault(it => it.type == ItemType.Key);
+        Debug.Log("test 2");
 
-        if (key != null && doorComponent.open == false)
+        if (money != null && key != null )
         {
-            _fsm.Feed(ActionEntity.NextStep);
+            _police.DropItem(key);
+            _ent.DropItem(money);
+            _ent.AddItem(key);
+            _police.AddItem(money);
+            Debug.Log("test 3");
 
-            /*canMove = false;
+            Debug.Log("Acepto dinero");
+            llave = 1;
 
-            _animator.SetTrigger("open");
-            StartCoroutine(WaitForAnimationToEnd("open", () =>
+            canMove = false;
+            Debug.Log("test 4");
+            if (animationplayed == false)
             {
+
+                StartCoroutine(DelayedAnimation("pick_up", 0.5f, () => {
                 canMove = true;
-            }));*/
+                Debug.Log("test 5");
+                    animationplayed = true;
+
+                    _fsm.Feed(ActionEntity.NextStep);
+
+            }));
+            }
+            else { return; }
         }
         else
         {
             _fsm.Feed(ActionEntity.FailedStep);
-            Debug.Log("PerformOpen failed");
+            Debug.Log("PerformSobornar failed");
         }
     }
-
     private void PerformPickUp(Entidad us, Item other)
     {
         other = _pastafrola;
 
         if (other != _target) return;
 
+        canMove = false;
+
+        StartCoroutine(DelayedAnimation("pick_up", 0.5f, () => {
+
+
+            canMove = true;
+
+            _fsm.Feed(ActionEntity.NextStep);
+
+        }));
         //canMove = false;
         // _animator.SetTrigger("pick_up");
         /* StartCoroutine(WaitForCurrentAnimationToEnd(() =>
@@ -179,6 +174,42 @@ public class Guy : MonoBehaviour
              canMove = true;
          }));*/
     }
+
+    public void PerformOpen(Entidad us, Item other)
+    {
+        other = _door;
+
+        if (other != _target) return;
+
+        var key = _ent.items.FirstOrDefault(it => it.type == ItemType.Key);
+
+        Door doorComponent = other.GetComponent<Door>();
+
+        Debug.Log("test 1");
+        if (key != null && doorComponent.open == false)
+        {
+            Debug.Log("test 2");
+
+            canMove = false;
+
+            StartCoroutine(DelayedAnimation("open", 0.5f, () => {
+                
+
+                door.GetComponent<Door>().Deactivate();
+
+                canMove = true;
+                doorComponent.open = true;
+                _fsm.Feed(ActionEntity.NextStep);
+
+            }));
+        }
+        else
+        {
+            _fsm.Feed(ActionEntity.FailedStep);
+            Debug.Log("PerformOpen failed");
+        }
+    }
+
 
     private void PerformPickUpM(Entidad us, Item other)
     {
@@ -317,7 +348,7 @@ public class Guy : MonoBehaviour
 
     public IEnumerator DelayedAnimation(string animationName, float delayedSeconds, Action onComplete = null)
     {
-        yield return new WaitForSeconds(delayedSeconds * Time.deltaTime);
+       
 
         yield return StartCoroutine(Guy.Instance.WaitForAnimationToEnd(animationName, () =>
         {

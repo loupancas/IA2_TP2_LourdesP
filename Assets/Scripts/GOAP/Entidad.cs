@@ -21,7 +21,8 @@ public class Entidad : MonoBehaviour
     private HashSet<Collider> _collidedItems = new HashSet<Collider>();
     private Dictionary<Collider, float> _lastCollisionTime = new Dictionary<Collider, float>();
     private float animationCooldown = 2f;
-
+    private float pickUpCooldown = 5f; // Tiempo de espera en segundos
+    private float lastPickUpTime = -Mathf.Infinity;
     public List<Item> initialItems;
     public List<Item> _items = new List<Item>();
 
@@ -132,26 +133,23 @@ public class Entidad : MonoBehaviour
         else
         {
             var item = col.collider.GetComponentInParent<Item>();
+
             if (item && item.transform.parent != inventory)
             {
-                Debug.Log("ItemHit " + item);
+                bool samePosition = Vector3.Distance(Guy.Instance._target.transform.position, transform.position) < 0.1f;
 
-                bool samePosition = Vector3.Distance(Guy.Instance._target.transform.position, transform.position) < 0.01f;
-                _lastCollisionTime.TryGetValue(col.collider, out float lastTime);
-                float timeSinceLastHit = Time.time - lastTime;
-
-                if (!_collidedItems.Contains(col.collider) && samePosition && timeSinceLastHit >= animationCooldown)
+                // Verificamos si pasaron al menos 5 segundos desde la última animación
+                if (Time.time - lastPickUpTime >= pickUpCooldown)
                 {
-                    _collidedItems.Add(col.collider);
-                    _lastCollisionTime[col.collider] = Time.time;
+                    lastPickUpTime = Time.time; // Actualizamos el último tiempo
 
-                    StartCoroutine(DelayedAnimation("pick_up", 2f, () =>
+                    StartCoroutine(DelayedAnimation("pick_up", 0.5f, () =>
                     {
                         Guy.Instance.canMove = true;
                     }));
                 }
 
-                OnHitItem(this, item);
+                OnHitItem(this, item); // Este se llama siempre
             }
         }
     }
@@ -163,10 +161,25 @@ public class Entidad : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
+        var item = other.GetComponentInParent<Item>();
+
         var e = other.GetComponent<Entidad>();
         if (e != null && e != this)
         {
             Debug.Log(e.name + " hit " + name);
+        }
+
+        Door door = other.GetComponent<Door>();
+        if (door != null && door.open == false)
+        {
+            StartCoroutine(DelayedAnimation("open", 0.5f, () =>
+            {
+
+                Guy.Instance.canMove = true;
+                OnHitItem(this, item);
+
+
+            }));
         }
     }
 
@@ -232,6 +245,7 @@ public class Entidad : MonoBehaviour
     {
         if (_navCR != null)
             StopCoroutine(_navCR);
+
         _navCR = StartCoroutine(Navigate(destination));
     }
 
@@ -243,6 +257,9 @@ public class Entidad : MonoBehaviour
 
     protected virtual IEnumerator Navigate(Vector3 destination)
     {
+        animator.ResetTrigger("idle");
+        animator.SetTrigger("walk"); // Comienza a caminar
+
         var srcWp = Navigation.instance.NearestTo(transform.position);
         var dstWp = Navigation.instance.NearestTo(destination);
 
@@ -281,6 +298,11 @@ public class Entidad : MonoBehaviour
         }
 
         _vel = Vector3.zero;
+
+        // Activar idle al llegar
+        animator.ResetTrigger("walk");
+        animator.SetTrigger("idle");
+
         OnReachDestination(this, reachedDst, reachedDst == dstWp);
     }
 
@@ -308,6 +330,8 @@ public class Entidad : MonoBehaviour
 
     private IEnumerator DelayedAnimation(string animationTrigger, float delaySeconds, Action onComplete = null)
     {
+        animator.SetTrigger("walk"); // Comienza a caminar
+
         yield return new WaitForSeconds(delaySeconds);
 
         Guy.Instance._animator.SetTrigger(animationTrigger);
