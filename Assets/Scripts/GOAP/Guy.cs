@@ -67,15 +67,12 @@ public class Guy : MonoBehaviour
         var mace = _ent.items.FirstOrDefault(it => it.type == ItemType.Mace);
         if (mace)
         {
-            //_animator.SetTrigger("pick_up");
-            /*StartCoroutine(WaitForCurrentAnimationToEnd(() =>
-            {
+           
                 other.Kill();
                 if (other.type == ItemType.Door)
                     Destroy(_ent.Removeitem(mace).gameObject);
                 canMove = true;
                 _fsm.Feed(ActionEntity.NextStep);
-            }));*/
         }
         else
         {
@@ -90,15 +87,12 @@ public class Guy : MonoBehaviour
         var mace = _ent.items.FirstOrDefault(it => it.type == ItemType.Mace);
         if (mace)
         {
-            //canMove = false;
-            //_animator.SetTrigger("pick_up");
-            /*StartCoroutine(WaitForCurrentAnimationToEnd(() =>
-            {
+            
                 other.Kill();
                 Destroy(_ent.Removeitem(mace).gameObject);
                 canMove = true;
                 _fsm.Feed(ActionEntity.NextStep);
-            }));*/
+            
         }
         else
         {
