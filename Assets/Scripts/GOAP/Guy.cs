@@ -145,30 +145,26 @@ public class Guy : MonoBehaviour
     }
     private void PerformPickUp(Entidad us, Item other)
     {
+     
         other = _pastafrola;
 
         if (other != _target) return;
 
         canMove = false;
+        _ent.AddItem(other);
 
         StartCoroutine(DelayedAnimation("pick_up", 0.5f, () => {
 
 
             canMove = true;
-
+            _enemyMovement.Empezar();
+          
             _fsm.Feed(ActionEntity.NextStep);
 
         }));
-        //canMove = false;
-        // _animator.SetTrigger("pick_up");
-        /* StartCoroutine(WaitForCurrentAnimationToEnd(() =>
-         {
-             _ent.AddItem(other);
-             _enemyMovement.Empezar();
-             canMove = true;
-         }));*/
+       
     }
-
+    
     public void PerformOpen(Entidad us, Item other)
     {
         other = _door;

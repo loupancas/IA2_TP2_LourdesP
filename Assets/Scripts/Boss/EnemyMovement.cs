@@ -18,7 +18,7 @@ public class EnemyMovement : MonoBehaviour
     private bool isChasing = false;
     private Coroutine _pathfindingCoroutine;
     private bool isAnimating = false;
-    [SerializeField] private Animator animator;
+    [SerializeField] public Animator animator;
     void Start()
     {
         _aStar = new AStar<Node>();
@@ -42,6 +42,7 @@ public class EnemyMovement : MonoBehaviour
             // Recalcular la ruta si el jugador está dentro del rango de persecución
             if (player != null && Vector3.Distance(transform.position, player.position) < chaseDistance)
             {
+                animator.SetBool("isWalking", true);    
                 isChasing = true;
                 Node startNode = FindClosestNode(transform.position);
                 Debug.Log("startNode"+startNode.name);

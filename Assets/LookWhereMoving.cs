@@ -6,9 +6,11 @@ public class LookWhereMoving : MonoBehaviour
     public float rotationSpeed = 10f;
     public Entidad entidad;
     private Vector3 lastPosition;
+    
 
     void Start()
     {
+
         entidad = GetComponent<Entidad>();
         lastPosition = transform.position;
     }
