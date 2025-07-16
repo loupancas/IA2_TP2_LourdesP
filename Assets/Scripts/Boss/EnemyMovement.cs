@@ -19,18 +19,24 @@ public class EnemyMovement : MonoBehaviour
     private Coroutine _pathfindingCoroutine;
     private bool isAnimating = false;
     [SerializeField] public Animator animator;
+    [SerializeField] BooWeapon _booWeapon;
     void Start()
     {
         _aStar = new AStar<Node>();
         _aStar.OnPathCompleted += GetPath;
         _aStar.OnCantCalculate += PathNotFound;
         _aStar.maxFrameTime = maxFrameTime; // Ajuste del tiempo máximo por frame
+        _booWeapon = FindObjectOfType<BooWeapon>();
+        
     }
 
     public void Empezar()
     {
        
         Debug.Log("Empezar");
+        _booWeapon.gameObject.SetActive(true);
+      _booWeapon.GetComponent<MeshRenderer>().enabled = true;
+        _booWeapon.GetComponent <Collider>().enabled = true;
         StartCoroutine(UpdatePathRoutine());
     }
 
@@ -137,11 +143,17 @@ public class EnemyMovement : MonoBehaviour
             
         }
 
-
+        Attack();
        
     } 
 
+    private void Attack()
+    {
+        //animation
+        //animator.SetTrigger("attack");
+        Debug.Log("ataque");
 
+    }
 
 
     //public override void UpdateLoop()

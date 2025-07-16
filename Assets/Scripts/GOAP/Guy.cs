@@ -157,12 +157,12 @@ public class Guy : MonoBehaviour
 
 
             canMove = true;
-            _enemyMovement.Empezar();
-          
-            _fsm.Feed(ActionEntity.NextStep);
+           
 
         }));
-       
+        _enemyMovement.Empezar();
+
+        _fsm.Feed(ActionEntity.NextStep);
     }
     
     public void PerformOpen(Entidad us, Item other)

@@ -47,6 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 1
+  pickedUp: 0
 --- !u!54 &532094677339699689
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -115,7 +116,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4488711533356399330}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: -5546940888850326318, guid: 8903becf9bb9b124099407630c637d16, type: 3}
 --- !u!23 &9083660867581197640
 MeshRenderer:
   m_ObjectHideFlags: 0
