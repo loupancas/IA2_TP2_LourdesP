@@ -17,13 +17,20 @@ public class ActivadorDeSpawner : MonoBehaviour
         {
             _gameManager.updateList = true;
             _arena.IniciarHorda();
+            Debug.Log("state");
         }
-        _goapPlanner = FindObjectOfType<GOAPPlanner>();
-        if (_goapPlanner != null)
+        else
         {
-            _goapPlanner.StartCoroutine(_goapPlanner.Plan());
-            Debug.Log("Planificando");
+
+            _goapPlanner = FindObjectOfType<GOAPPlanner>();
+            if (_goapPlanner != null)
+            {
+                _goapPlanner.StartCoroutine(_goapPlanner.Plan());
+                Debug.Log("Planificando");
+            }
+
         }
+    
 
         gameObject.SetActive(false);
 

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class EnemyUI : MonoBehaviour
@@ -81,6 +82,7 @@ public class EnemyUI : MonoBehaviour
         {
             actualLife = _lifeBar.ActualLife;
             lifeUI.fillAmount = (float)actualLife / _lifeBar.initialLife;
+            if (actualLife <=0) { SceneManager.LoadScene(2); } 
         }
 
     }
