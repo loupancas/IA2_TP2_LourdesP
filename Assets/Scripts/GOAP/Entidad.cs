@@ -1,8 +1,9 @@
-using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 
 public class Entidad : MonoBehaviour
@@ -157,6 +158,7 @@ public class Entidad : MonoBehaviour
     public void Life()
     {
         alive = "muerto";
+        SceneManager.LoadScene(2);
     }
 
     void OnTriggerEnter(Collider other)

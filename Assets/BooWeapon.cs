@@ -26,6 +26,7 @@ public class BooWeapon : MonoBehaviour
     {
         if (collision.collider.GetComponent<FirstPersonPlayer>() != null)
         {
+            Debug.Log("dmg");
             collision.collider.GetComponent<FirstPersonPlayer>().TakeDamage(_dmg);
            
         }

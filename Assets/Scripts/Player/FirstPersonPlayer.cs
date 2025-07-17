@@ -148,7 +148,8 @@ public class FirstPersonPlayer : Entity
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = false;
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene(3);
+        
     }
 
     public override void TakeDamage(int Damage)

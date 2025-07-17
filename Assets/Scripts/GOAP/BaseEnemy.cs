@@ -57,7 +57,8 @@ public class BaseEnemy : MonoBehaviour
 
     public void Morir()
     {
-       //muerto
+        //muerto
+        Debug.Log("muerto");
     }
 
     public void Fatigado()

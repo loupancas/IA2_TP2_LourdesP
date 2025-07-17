@@ -11,4 +11,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Primer Nivel Definitivo.unity
     guid: 6addc5e64c2264e4da63219125e1cfbd
+  - enabled: 1
+    path: Assets/Scenes/ResumeWin.unity
+    guid: 4e326e4f78944b342acf5b699c83e9c3
+  - enabled: 1
+    path: Assets/Scenes/ResumeLose.unity
+    guid: f461d847eed70924caa6268ef0c677f3
   m_configObjects: {}

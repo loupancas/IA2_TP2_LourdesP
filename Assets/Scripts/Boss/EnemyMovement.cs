@@ -1,4 +1,5 @@
 using FSM;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,7 @@ public class EnemyMovement : MonoBehaviour
     private bool isAnimating = false;
     [SerializeField] public Animator animator;
     [SerializeField] BooWeapon _booWeapon;
+    [SerializeField] startfight _startfight;
     void Start()
     {
         _aStar = new AStar<Node>();
@@ -27,6 +29,7 @@ public class EnemyMovement : MonoBehaviour
         _aStar.OnCantCalculate += PathNotFound;
         _aStar.maxFrameTime = maxFrameTime; // Ajuste del tiempo máximo por frame
         _booWeapon = FindObjectOfType<BooWeapon>();
+        _startfight = FindObjectOfType<startfight>();
         
     }
 
@@ -37,6 +40,7 @@ public class EnemyMovement : MonoBehaviour
         _booWeapon.gameObject.SetActive(true);
       _booWeapon.GetComponent<MeshRenderer>().enabled = true;
         _booWeapon.GetComponent <Collider>().enabled = true;
+        _startfight.GetComponent<Collider>().enabled = false;
         StartCoroutine(UpdatePathRoutine());
     }
 
@@ -48,7 +52,7 @@ public class EnemyMovement : MonoBehaviour
             // Recalcular la ruta si el jugador está dentro del rango de persecución
             if (player != null && Vector3.Distance(transform.position, player.position) < chaseDistance)
             {
-                animator.SetBool("isWalking", true);    
+                 
                 isChasing = true;
                 Node startNode = FindClosestNode(transform.position);
                 Debug.Log("startNode"+startNode.name);
@@ -136,13 +140,15 @@ public class EnemyMovement : MonoBehaviour
 
         // Mover hacia el objetivo
         transform.position = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
-
+        animator.ResetTrigger("idle");
+        animator.SetTrigger("walk");
         if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
         {
             _currentPathIndex++;
             
         }
-
+        animator.ResetTrigger("walk");
+        animator.SetTrigger("idle");
         Attack();
        
     } 
@@ -155,7 +161,19 @@ public class EnemyMovement : MonoBehaviour
 
     }
 
+    private IEnumerator DelayedAnimation(string animationTrigger, float delaySeconds, Action onComplete = null)
+    {
+        animator.SetTrigger("walk"); // Comienza a caminar
 
+        yield return new WaitForSeconds(delaySeconds);
+
+        Guy.Instance._animator.SetTrigger(animationTrigger);
+
+        yield return Guy.Instance.WaitForAnimationToEnd(animationTrigger, () =>
+        {
+            onComplete?.Invoke();
+        });
+    }
     //public override void UpdateLoop()
     //{
     //    if (player != null && Vector3.Distance(transform.position, player.position) < chaseDistance)
@@ -179,7 +197,7 @@ public class EnemyMovement : MonoBehaviour
 
     //public override Dictionary<string, object> Exit(IState to)
     //{
-      
+
     //    _stateFinished = false;
     //    return base.Exit(to);
     //}
@@ -195,5 +213,5 @@ public class EnemyMovement : MonoBehaviour
     //}
 
 
-  
+
 }
