@@ -34,4 +34,14 @@ public class BooWeapon : MonoBehaviour
      
 
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (GetComponent<FirstPersonPlayer>() != null)
+        {
+            Debug.Log("dmg");
+            GetComponent<FirstPersonPlayer>().TakeDamage(_dmg);
+
+        }
+    }
 }
